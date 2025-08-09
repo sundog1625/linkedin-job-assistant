@@ -1,0 +1,248 @@
+/* LinkedIn Job Assistant Panel Styles */
+
+.lja-panel {
+  position: relative;
+  margin-top: 16px;
+  z-index: 1000;
+}
+
+.lja-panel-container {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  margin: 16px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.lja-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.lja-panel-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.lja-panel-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.lja-btn-icon {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  color: #666;
+}
+
+.lja-btn-icon:hover {
+  background-color: #f0f0f0;
+}
+
+.lja-match-score {
+  margin-bottom: 20px;
+}
+
+.lja-overall-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.lja-score-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.lja-score-text {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.lja-score-label {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.lja-score-breakdown {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.lja-score-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.lja-score-icon {
+  color: #666;
+}
+
+.lja-score-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.lja-score-category {
+  font-size: 12px;
+  color: #666;
+}
+
+.lja-score-value {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.text-green-600 {
+  color: #16a34a;
+}
+
+.text-yellow-600 {
+  color: #ca8a04;
+}
+
+.text-red-600 {
+  color: #dc2626;
+}
+
+.bg-green-100 {
+  background-color: #dcfce7;
+}
+
+.bg-yellow-100 {
+  background-color: #fef3c7;
+}
+
+.bg-red-100 {
+  background-color: #fee2e2;
+}
+
+.lja-job-details {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.lja-detail-item {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.lja-detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.lja-detail-item strong {
+  font-weight: 600;
+  margin-right: 8px;
+  color: #1a1a1a;
+}
+
+.lja-easy-apply-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #0a66c2;
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.lja-panel-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.lja-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #0a66c2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.lja-btn-primary:hover:not(.lja-btn-disabled) {
+  background: #004c99;
+}
+
+.lja-btn-disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .lja-panel-container {
+    background: #1e1e1e;
+    border-color: #333;
+    color: #e0e0e0;
+  }
+
+  .lja-panel-title {
+    color: #f0f0f0;
+  }
+
+  .lja-btn-icon {
+    color: #999;
+  }
+
+  .lja-btn-icon:hover {
+    background-color: #333;
+  }
+
+  .lja-score-item {
+    background: #2a2a2a;
+  }
+
+  .lja-job-details {
+    background: #2a2a2a;
+  }
+
+  .lja-detail-item {
+    color: #e0e0e0;
+  }
+
+  .lja-detail-item strong {
+    color: #f0f0f0;
+  }
+}

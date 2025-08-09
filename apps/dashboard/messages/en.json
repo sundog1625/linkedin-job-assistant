@@ -1,0 +1,63 @@
+{
+  "Dashboard": {
+    "welcome": "Welcome back!",
+    "subtitle": "Track your job search progress and optimize your LinkedIn presence"
+  },
+  "Navigation": {
+    "dashboard": "Dashboard",
+    "jobTracker": "Job Tracker",
+    "resumeManager": "Resume Manager", 
+    "profileOptimizer": "Profile Optimizer",
+    "interviewPrep": "Interview Prep",
+    "networking": "Networking",
+    "aiTools": "AI Tools",
+    "settings": "Settings"
+  },
+  "Header": {
+    "searchPlaceholder": "Search jobs, companies, or contacts...",
+    "notifications": "Notifications",
+    "language": "Language"
+  },
+  "Jobs": {
+    "title": "Job Tracker",
+    "subtitle": "Manage and track all your job applications in one place",
+    "addJob": "Add Job",
+    "searchPlaceholder": "Search jobs by title, company, or location...",
+    "noJobsFound": "No jobs found",
+    "filters": {
+      "all": "All Jobs",
+      "saved": "Saved",
+      "applied": "Applied", 
+      "interviewing": "Interviewing",
+      "offers": "Offers",
+      "rejected": "Rejected"
+    }
+  },
+  "Resume": {
+    "title": "Resume Manager",
+    "subtitle": "Create, customize, and manage multiple resume versions for different opportunities",
+    "newResume": "New Resume",
+    "aiGenerate": "AI Generate",
+    "createResume": "Create Resume"
+  },
+  "Profile": {
+    "title": "LinkedIn Profile Optimizer",
+    "subtitle": "Improve your LinkedIn profile to attract more opportunities and stand out to recruiters"
+  },
+  "AITools": {
+    "title": "AI Tools",
+    "subtitle": "Generate professional content with AI to enhance your job search and networking"
+  },
+  "Common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "download": "Download",
+    "copy": "Copy",
+    "loading": "Loading...",
+    "success": "Success",
+    "error": "Error"
+  }
+}

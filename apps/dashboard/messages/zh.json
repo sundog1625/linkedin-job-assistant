@@ -1,0 +1,63 @@
+{
+  "Dashboard": {
+    "welcome": "欢迎回来！",
+    "subtitle": "跟踪您的求职进度并优化您的LinkedIn档案"
+  },
+  "Navigation": {
+    "dashboard": "仪表板",
+    "jobTracker": "职位跟踪",
+    "resumeManager": "简历管理",
+    "profileOptimizer": "档案优化",
+    "interviewPrep": "面试准备",
+    "networking": "人脉网络",
+    "aiTools": "AI工具",
+    "settings": "设置"
+  },
+  "Header": {
+    "searchPlaceholder": "搜索职位、公司或联系人...",
+    "notifications": "通知",
+    "language": "语言"
+  },
+  "Jobs": {
+    "title": "职位跟踪",
+    "subtitle": "在一个地方管理和跟踪您的所有求职申请",
+    "addJob": "添加职位",
+    "searchPlaceholder": "按标题、公司或地点搜索职位...",
+    "noJobsFound": "未找到职位",
+    "filters": {
+      "all": "所有职位",
+      "saved": "已保存",
+      "applied": "已申请",
+      "interviewing": "面试中",
+      "offers": "收到offer",
+      "rejected": "被拒绝"
+    }
+  },
+  "Resume": {
+    "title": "简历管理",
+    "subtitle": "为不同的机会创建、定制和管理多个简历版本",
+    "newResume": "新建简历",
+    "aiGenerate": "AI生成",
+    "createResume": "创建简历"
+  },
+  "Profile": {
+    "title": "LinkedIn档案优化器",
+    "subtitle": "改善您的LinkedIn档案以吸引更多机会并在招聘者中脱颖而出"
+  },
+  "AITools": {
+    "title": "AI工具",
+    "subtitle": "使用AI生成专业内容来增强您的求职和网络建设"
+  },
+  "Common": {
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "view": "查看",
+    "download": "下载",
+    "copy": "复制",
+    "loading": "加载中...",
+    "success": "成功",
+    "error": "错误"
+  }
+}
