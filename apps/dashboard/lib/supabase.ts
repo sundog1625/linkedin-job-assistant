@@ -149,19 +149,14 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  return (
-    <SupabaseContext.Provider value={{ supabase, user, loading }}>
-      {children}
-    </SupabaseContext.Provider>
-  )
+  // This should be in a .tsx file
+  return { supabase, user, loading }
 }
 
-export const useSupabase = () => {
-  const context = useContext(SupabaseContext)
-  if (!context) {
-    throw new Error('useSupabase must be used within a SupabaseProvider')
-  }
-  return context
+// Helper function to get user session
+export const getUserSession = async () => {
+  const { data: { session } } = await supabase.auth.getSession()
+  return session
 }
 
 // Database operations

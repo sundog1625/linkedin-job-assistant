@@ -1,0 +1,65 @@
+{
+  "common": {
+    "title": "LinkedIn Job Assistant",
+    "dashboard": "Dashboard", 
+    "jobs": "Jobs",
+    "resumes": "Resumes",
+    "profile": "Profile",
+    "settings": "Settings",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import"
+  },
+  "dashboard": {
+    "welcome": "Welcome to Your Job Search Dashboard",
+    "stats": {
+      "saved": "Jobs Saved",
+      "applied": "Applied",
+      "interviews": "Interviews",
+      "offers": "Offers"
+    },
+    "quickActions": "Quick Actions",
+    "recentActivity": "Recent Activity"
+  },
+  "jobs": {
+    "title": "Job Tracker",
+    "addJob": "Add Job",
+    "status": {
+      "saved": "Saved",
+      "applied": "Applied",
+      "interviewing": "Interviewing",
+      "offer": "Offer",
+      "rejected": "Rejected"
+    },
+    "matchScore": "Match Score",
+    "company": "Company",
+    "location": "Location",
+    "postedDate": "Posted Date"
+  },
+  "resume": {
+    "title": "Resume Manager",
+    "upload": "Upload Resume",
+    "versions": "Resume Versions",
+    "optimize": "AI Optimize",
+    "download": "Download"
+  },
+  "profile": {
+    "title": "LinkedIn Profile Optimizer",
+    "score": "Profile Score",
+    "suggestions": "Improvement Suggestions",
+    "keywords": "Keywords Analysis"
+  },
+  "ai": {
+    "title": "AI Tools",
+    "coverLetter": "Generate Cover Letter",
+    "emailTemplate": "Email Templates",
+    "interviewPrep": "Interview Preparation",
+    "networking": "Networking Messages"
+  }
+}

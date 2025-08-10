@@ -1,0 +1,65 @@
+{
+  "common": {
+    "title": "LinkedIn 求职助手",
+    "dashboard": "仪表板",
+    "jobs": "职位",
+    "resumes": "简历",
+    "profile": "档案",
+    "settings": "设置",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "search": "搜索",
+    "filter": "筛选",
+    "export": "导出",
+    "import": "导入"
+  },
+  "dashboard": {
+    "welcome": "欢迎使用求职管理仪表板",
+    "stats": {
+      "saved": "已保存职位",
+      "applied": "已申请",
+      "interviews": "面试",
+      "offers": "录用通知"
+    },
+    "quickActions": "快速操作",
+    "recentActivity": "最近活动"
+  },
+  "jobs": {
+    "title": "职位追踪器",
+    "addJob": "添加职位",
+    "status": {
+      "saved": "已保存",
+      "applied": "已申请",
+      "interviewing": "面试中",
+      "offer": "已录用",
+      "rejected": "已拒绝"
+    },
+    "matchScore": "匹配分数",
+    "company": "公司",
+    "location": "地点",
+    "postedDate": "发布日期"
+  },
+  "resume": {
+    "title": "简历管理",
+    "upload": "上传简历",
+    "versions": "简历版本",
+    "optimize": "AI优化",
+    "download": "下载"
+  },
+  "profile": {
+    "title": "LinkedIn档案优化",
+    "score": "档案评分",
+    "suggestions": "改进建议",
+    "keywords": "关键词分析"
+  },
+  "ai": {
+    "title": "AI工具",
+    "coverLetter": "生成求职信",
+    "emailTemplate": "邮件模板",
+    "interviewPrep": "面试准备",
+    "networking": "社交信息"
+  }
+}

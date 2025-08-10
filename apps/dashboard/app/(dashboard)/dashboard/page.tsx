@@ -7,14 +7,22 @@ import { QuickActions } from '@/components/QuickActions'
 import { ProfileScore } from '@/components/ProfileScore'
 import { UpcomingInterviews } from '@/components/UpcomingInterviews'
 import { JobApplicationChart } from '@/components/JobApplicationChart'
-import { useSupabase } from '@/lib/supabase'
-import { useTranslations } from 'next-intl'
+import { useSupabase } from '@/lib/supabase-provider'
 
 export default function DashboardPage() {
-  const t = useTranslations('Dashboard')
   const { supabase } = useSupabase()
   const [loading, setLoading] = useState(true)
-  const [dashboardData, setDashboardData] = useState({
+  const [dashboardData, setDashboardData] = useState<{
+    stats: {
+      totalJobs: number
+      appliedJobs: number
+      interviewsScheduled: number
+      offersReceived: number
+    }
+    recentJobs: any[]
+    profileScore: number
+    upcomingInterviews: any[]
+  }>({
     stats: {
       totalJobs: 0,
       appliedJobs: 0,
@@ -83,9 +91,9 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* Welcome Message */}
       <div className="gradient-header rounded-lg p-6 text-white">
-        <h1 className="text-3xl font-bold mb-2">{t('welcome')}</h1>
+        <h1 className="text-3xl font-bold mb-2">Welcome to Your Dashboard</h1>
         <p className="text-linkedin-100 opacity-90">
-          {t('subtitle')}
+          Track and manage your job applications with AI insights
         </p>
       </div>
 

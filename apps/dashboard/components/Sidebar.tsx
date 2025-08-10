@@ -17,11 +17,9 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { useTranslations } from 'next-intl'
-
 interface SidebarItem {
   href: string
-  icon: React.ComponentType<{ size?: number }>
+  icon: any
   label: string
   badge?: number
 }
@@ -29,48 +27,47 @@ interface SidebarItem {
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
-  const t = useTranslations('Navigation')
 
   const sidebarItems: SidebarItem[] = [
     {
       href: '/dashboard',
       icon: LayoutDashboard,
-      label: t('dashboard'),
+      label: 'Dashboard',
     },
     {
       href: '/jobs',
       icon: Briefcase,
-      label: t('jobTracker'),
+      label: 'Job Tracker',
     },
     {
       href: '/resume',
       icon: FileText,
-      label: t('resumeManager'),
+      label: 'Resume Manager',
     },
     {
       href: '/profile',
       icon: User,
-      label: t('profileOptimizer'),
+      label: 'Profile Optimizer',
     },
     {
       href: '/interview',
       icon: MessageSquare,
-      label: t('interviewPrep'),
+      label: 'Interview Prep',
     },
     {
       href: '/networking',
       icon: Users,
-      label: t('networking'),
+      label: 'Networking',
     },
     {
       href: '/ai-tools',
       icon: Zap,
-      label: t('aiTools'),
+      label: 'AI Tools',
     },
     {
       href: '/settings',
       icon: Settings,
-      label: t('settings'),
+      label: 'Settings',
     },
   ]
 

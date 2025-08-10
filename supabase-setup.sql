@@ -207,13 +207,14 @@ CREATE TRIGGER handle_contacts_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_updated_at();
 
--- Insert some sample data for testing
-INSERT INTO public.jobs (user_id, linkedin_url, title, company, location, description, status, match_score, created_at)
-VALUES 
-  ('11111111-1111-1111-1111-111111111111', 'https://linkedin.com/jobs/view/123456789', 'Senior Frontend Developer', 'Google', 'Mountain View, CA', 'We are looking for a Senior Frontend Developer...', 'saved', '{"skills": 85, "experience": 90, "education": 75, "location": 95, "overall": 86}'::jsonb, NOW()),
-  ('11111111-1111-1111-1111-111111111111', 'https://linkedin.com/jobs/view/987654321', 'Full Stack Engineer', 'Meta', 'Menlo Park, CA', 'Join our engineering team...', 'applied', '{"skills": 92, "experience": 85, "education": 80, "location": 90, "overall": 87}'::jsonb, NOW()),
-  ('11111111-1111-1111-1111-111111111111', 'https://linkedin.com/jobs/view/456789123', 'Software Engineer', 'Netflix', 'Los Gatos, CA', 'Help us scale our platform...', 'saved', '{"skills": 78, "experience": 70, "education": 85, "location": 80, "overall": 78}'::jsonb, NOW())
-ON CONFLICT DO NOTHING;
+-- 注意：示例数据需要在用户注册后插入
+-- 这里只创建表结构，不插入示例数据
+-- 用户注册后可以通过应用界面添加职位数据
+
+-- 如果需要测试数据，请先确保有有效的用户ID，然后手动插入：
+-- INSERT INTO public.jobs (user_id, linkedin_url, title, company, location, description, status, match_score, created_at)
+-- VALUES 
+--   (auth.uid(), 'https://linkedin.com/jobs/view/123456789', 'Senior Frontend Developer', 'Google', 'Mountain View, CA', 'We are looking for a Senior Frontend Developer...', 'saved', '{"skills": 85, "experience": 90, "education": 75, "location": 95, "overall": 86}'::jsonb, NOW());
 
 -- 完成消息
 SELECT 'Database setup completed successfully! 🎉' as message;

@@ -22,7 +22,7 @@ import {
 interface ProfileSection {
   id: string
   name: string
-  icon: React.ComponentType<{ size?: number }>
+  icon: any
   score: number
   maxScore: number
   status: 'completed' | 'needs_improvement' | 'missing'
@@ -163,7 +163,7 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-gray-100 rounded-lg">
-                      <Icon size={20} className="text-gray-600" />
+                      <Icon size={20} />
                     </div>
                     <CardTitle className="text-lg">{section.name}</CardTitle>
                   </div>

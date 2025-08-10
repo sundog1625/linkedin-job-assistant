@@ -30,7 +30,7 @@ interface AITool {
   id: string
   name: string
   description: string
-  icon: React.ComponentType<{ size?: number }>
+  icon: any
   category: string
   inputPlaceholder: string
   outputExample: string
