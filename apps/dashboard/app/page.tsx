@@ -1,3 +1,10 @@
+'use client'
+
+export const dynamic = 'force-dynamic'
+
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -8,6 +15,13 @@ export default function HomePage() {
             <div className="flex items-center">
               <span className="text-2xl mr-2">🚀</span>
               <span className="text-xl font-bold text-gray-900">LinkedIn Job Assistant</span>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link href="/dashboard">
+                <Button variant="default">
+                  Enter Dashboard
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -45,7 +59,7 @@ export default function HomePage() {
         </div>
 
         {/* Features */}
-        <div className="bg-white rounded-lg shadow p-8">
+        <div className="bg-white rounded-lg shadow p-8 mb-8">
           <h2 className="text-2xl font-bold mb-6">🎯 Getting Started</h2>
           <ol className="space-y-4 text-lg">
             <li>✅ Chrome Extension installed and active</li>
@@ -53,6 +67,40 @@ export default function HomePage() {
             <li>💾 Save interesting jobs for tracking</li>
             <li>📊 Manage applications in this dashboard</li>
           </ol>
+        </div>
+
+        {/* Quick Access */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <Link href="/dashboard">
+            <Button variant="outline" className="w-full p-6 h-auto flex-col space-y-2">
+              <span className="text-2xl">📊</span>
+              <span>Dashboard</span>
+            </Button>
+          </Link>
+          <Link href="/jobs">
+            <Button variant="outline" className="w-full p-6 h-auto flex-col space-y-2">
+              <span className="text-2xl">💼</span>
+              <span>Jobs</span>
+            </Button>
+          </Link>
+          <Link href="/resume">
+            <Button variant="outline" className="w-full p-6 h-auto flex-col space-y-2">
+              <span className="text-2xl">📄</span>
+              <span>Resume</span>
+            </Button>
+          </Link>
+          <Link href="/profile">
+            <Button variant="outline" className="w-full p-6 h-auto flex-col space-y-2">
+              <span className="text-2xl">👤</span>
+              <span>Profile</span>
+            </Button>
+          </Link>
+          <Link href="/ai-tools">
+            <Button variant="outline" className="w-full p-6 h-auto flex-col space-y-2">
+              <span className="text-2xl">🤖</span>
+              <span>AI Tools</span>
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
