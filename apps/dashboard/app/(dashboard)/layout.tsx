@@ -1,3 +1,9 @@
+'use client'
+
+export const dynamic = 'force-dynamic'
+export const dynamicParams = true
+export const revalidate = 0
+
 import { Sidebar } from '@/components/Sidebar'
 import { Header } from '@/components/Header'
 import { Toaster } from '@/components/ui/toaster'
