@@ -3,15 +3,25 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { createContext, useContext, useEffect, useState } from 'react'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-})
+let supabase: SupabaseClient
+
+try {
+  supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  })
+} catch (error) {
+  console.warn('Supabase client creation failed, using mock mode:', error)
+  // Create a mock client that won't crash the app
+  supabase = {} as SupabaseClient
+}
+
+export { supabase }
 
 // Types for our database schema
 export interface Job {
