@@ -68,7 +68,7 @@ ${resumeText}
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY || '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',
+        'x-api-key': process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY || '',
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
