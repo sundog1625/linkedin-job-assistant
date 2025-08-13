@@ -40,6 +40,7 @@ export interface Job {
   job_type?: string
   posted_date?: string
   application_deadline?: string
+  applicant_count?: number  // 修复：添加缺失的申请人数量字段
   match_score?: {
     skills: number
     experience: number
