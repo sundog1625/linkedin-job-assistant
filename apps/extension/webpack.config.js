@@ -4,7 +4,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = {
   entry: {
     background: './src/background/index.ts',
-    content: './src/content/index.tsx',
+    content: './src/content/safe-version.tsx',
     popup: './src/popup/index.tsx',
   },
   output: {
@@ -33,6 +33,15 @@ module.exports = {
         { from: 'public', to: '.' },
         { from: 'manifest.json', to: '.' },
         { from: 'popup.html', to: '.' },
+        { from: 'src/content/styles.css', to: 'content.css' },
+        { from: 'src/content/injected.js', to: 'injected.js' },
+        { from: 'test-popup.html', to: 'test-popup.html' },
+        { from: 'simple-test.html', to: 'simple-test.html' },
+        { from: 'debug-popup.html', to: 'debug-popup.html' },
+        { from: 'debug-popup.js', to: 'debug-popup.js' },
+        { from: 'simple-background.js', to: 'simple-background.js' },
+        { from: 'smart-popup.html', to: 'smart-popup.html' },
+        { from: 'smart-popup.js', to: 'smart-popup.js' },
       ],
     }),
   ],

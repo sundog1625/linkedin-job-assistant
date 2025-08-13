@@ -6,42 +6,31 @@
   "permissions": [
     "storage",
     "tabs",
-    "activeTab"
+    "activeTab",
+    "scripting"
   ],
   "host_permissions": [
     "https://www.linkedin.com/*",
-    "https://linkedin.com/*"
+    "https://linkedin.com/*",
+    "https://api.anthropic.com/*"
   ],
   "background": {
-    "service_worker": "dist/background.js",
-    "type": "module"
+    "service_worker": "simple-background.js"
   },
   "content_scripts": [
     {
       "matches": ["https://www.linkedin.com/*", "https://linkedin.com/*"],
-      "js": ["dist/content.js"],
-      "css": ["dist/content.css"],
+      "js": ["content.js"],
+      "css": ["content.css"],
       "run_at": "document_idle"
     }
   ],
   "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icons/icon-16.png",
-      "32": "icons/icon-32.png",
-      "48": "icons/icon-48.png",
-      "128": "icons/icon-128.png"
-    }
-  },
-  "icons": {
-    "16": "icons/icon-16.png",
-    "32": "icons/icon-32.png",
-    "48": "icons/icon-48.png",
-    "128": "icons/icon-128.png"
+    "default_popup": "smart-popup.html"
   },
   "web_accessible_resources": [
     {
-      "resources": ["dist/*.js", "dist/*.css"],
+      "resources": ["*.js", "*.css", "injected.js"],
       "matches": ["https://www.linkedin.com/*", "https://linkedin.com/*"]
     }
   ]

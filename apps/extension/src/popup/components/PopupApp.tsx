@@ -43,7 +43,35 @@ export const PopupApp: React.FC = () => {
   };
 
   const openDashboard = () => {
-    chrome.tabs.create({ url: 'https://linkedin-job-assistant.vercel.app' });
+    chrome.tabs.create({ url: 'https://linkedin-job-assistant-dashboard-w7.vercel.app/' });
+  };
+
+  const testAI = async () => {
+    console.log('🧪 测试AI API调用...');
+    try {
+      const response = await new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({
+          type: MessageType.GENERATE_AI_SUMMARY,
+          data: {
+            title: '测试职位',
+            company: '测试公司',
+            location: '测试地点',
+            description: '这是一个测试职位描述'
+          }
+        }, (response) => {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+          } else {
+            resolve(response);
+          }
+        });
+      });
+      console.log('✅ AI响应:', response);
+      alert('AI测试成功: ' + JSON.stringify(response));
+    } catch (error) {
+      console.error('❌ AI测试失败:', error);
+      alert('AI测试失败: ' + error);
+    }
   };
 
   const getStatusIcon = (status: JobStatus) => {
@@ -234,6 +262,9 @@ export const PopupApp: React.FC = () => {
       </div>
 
       <div className="popup-footer">
+        <button onClick={testAI} className="popup-btn-secondary">
+          🧪 测试AI
+        </button>
         <button onClick={openDashboard} className="popup-btn-primary">
           <ExternalLink size={16} />
           {getTranslation('openDashboard')}

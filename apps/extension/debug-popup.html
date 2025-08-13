@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; object-src 'self'">
+    <title>Debug Popup</title>
+    <style>
+        body {
+            width: 300px;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background: #007cba;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #005a87;
+        }
+    </style>
+</head>
+<body>
+    <h3>扩展调试面板</h3>
+    
+    <div class="status" id="status">加载中...</div>
+    
+    <button id="test-basic">1. 基础测试</button>
+    <button id="test-chrome">2. Chrome API测试</button>
+    <button id="test-background">3. 后台脚本测试</button>
+    <button id="test-ai">4. 测试AI总结</button>
+    
+    <script src="debug-popup.js"></script>
+</body>
+</html>

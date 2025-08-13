@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Test</title>
+</head>
+<body>
+    <h3>简单测试</h3>
+    <button id="test-btn">点击测试</button>
+    <div id="output">等待点击...</div>
+
+    <script>
+        console.log('🚀 简单测试脚本已加载');
+        
+        document.getElementById('test-btn').addEventListener('click', function() {
+            console.log('🔘 按钮被点击');
+            document.getElementById('output').textContent = '按钮点击成功！时间: ' + new Date().toLocaleString();
+            
+            // 测试基本API调用
+            console.log('📡 开始测试fetch...');
+            fetch('https://httpbin.org/json')
+                .then(response => {
+                    console.log('✅ fetch响应:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('📊 fetch数据:', data);
+                    document.getElementById('output').innerHTML += '<br>基础网络测试成功!';
+                })
+                .catch(error => {
+                    console.error('❌ fetch失败:', error);
+                    document.getElementById('output').innerHTML += '<br>网络测试失败: ' + error.message;
+                });
+        });
+        
+        console.log('✅ 事件监听器已设置');
+    </script>
+</body>
+</html>

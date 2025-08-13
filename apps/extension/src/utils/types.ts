@@ -9,12 +9,16 @@ export enum MessageType {
   UPDATE_USER_PROFILE = 'UPDATE_USER_PROFILE',
   TOGGLE_PANEL = 'TOGGLE_PANEL',
   EXTRACT_JOB_DATA = 'EXTRACT_JOB_DATA',
-  SYNC_TO_DASHBOARD = 'SYNC_TO_DASHBOARD'
+  SYNC_TO_DASHBOARD = 'SYNC_TO_DASHBOARD',
+  GENERATE_AI_SUMMARY = 'GENERATE_AI_SUMMARY',
+  TRANSLATE_TEXT = 'TRANSLATE_TEXT',
+  TEST_MESSAGE = 'TEST_MESSAGE'
 }
 
 export interface Message {
-  type: MessageType;
+  type: MessageType | string;
   data?: any;
+  requestId?: string;
 }
 
 export interface Job {

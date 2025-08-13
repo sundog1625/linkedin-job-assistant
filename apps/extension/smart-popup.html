@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LinkedIn AI Assistant</title>
+    <style>
+        body {
+            width: 420px;
+            min-height: 400px;
+            padding: 0;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            margin: 8px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
+        }
+        .header p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+            position: relative;
+            z-index: 1;
+        }
+        .content {
+            padding: 24px 20px;
+        }
+        .status {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .status-loading {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: none;
+            color: #856404;
+        }
+        .status-success {
+            background: linear-gradient(135deg, #d4edda, #a3d977);
+            border: none;
+            color: #155724;
+        }
+        .status-error {
+            background: linear-gradient(135deg, #f8d7da, #f56565);
+            border: none;
+            color: #721c24;
+        }
+        .status-info {
+            background: linear-gradient(135deg, #d1ecf1, #81e6d9);
+            border: none;
+            color: #0c5460;
+        }
+        .job-info {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: none;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        .job-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        .job-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        .job-company {
+            color: #4a5568;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .job-location {
+            color: #718096;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .summary {
+            background: linear-gradient(135deg, #ffffff, #f7fafc);
+            border-radius: 16px;
+            padding: 20px;
+            border: none;
+            line-height: 1.7;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+        .summary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #48bb78, #38b2ac);
+        }
+        .summary h3 {
+            margin: 0 0 16px 0;
+            color: #1a202c;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .profile-setup {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border: 2px dashed #cbd5e0;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-setup::before {
+            content: '👤';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 60px;
+            opacity: 0.1;
+            transform: rotate(15deg);
+        }
+        .profile-display {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: none;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #9f7aea, #667eea);
+        }
+        .profile-item {
+            margin-bottom: 12px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+        }
+        .profile-item strong {
+            color: #4a5568;
+            min-width: 80px;
+            font-weight: 600;
+        }
+        .profile-item span {
+            color: #1a202c;
+            margin-left: 8px;
+        }
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 12px;
+            margin: 8px 4px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .match-score {
+            background: linear-gradient(135deg, #48bb78, #38b2ac);
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(72, 187, 120, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .match-score::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
+            animation: shimmer 2s infinite;
+        }
+        .match-percentage {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .match-score-text {
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 LinkedIn AI Assistant</h1>
+            <p>智能职位分析助手</p>
+        </div>
+        
+        <div class="content">
+            <div id="status" class="status status-loading">
+                <span class="spinner"></span>
+                正在检测LinkedIn页面...
+            </div>
+            
+            <div id="profile-section" style="display: none;"></div>
+            <div id="job-info" style="display: none;"></div>
+            <div id="summary-section" style="display: none;"></div>
+            <div id="actions" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="smart-popup.js"></script>
+</body>
+</html>
