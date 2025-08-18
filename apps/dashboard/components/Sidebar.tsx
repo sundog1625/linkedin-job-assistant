@@ -17,6 +17,8 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/lib/i18n/context'
+import { LanguageSelector } from '@/components/LanguageSelector'
 interface SidebarItem {
   href: string
   icon: any
@@ -27,47 +29,33 @@ interface SidebarItem {
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
+  const { t } = useI18n()
 
   const sidebarItems: SidebarItem[] = [
     {
       href: '/dashboard',
       icon: LayoutDashboard,
-      label: 'Dashboard',
+      label: t.navigation.dashboard,
     },
     {
       href: '/jobs',
       icon: Briefcase,
-      label: 'Job Tracker',
+      label: t.navigation.jobs,
     },
     {
       href: '/resume',
       icon: FileText,
-      label: 'Resume Manager',
+      label: t.navigation.resume,
     },
     {
       href: '/profile',
       icon: User,
-      label: 'Profile Optimizer',
-    },
-    {
-      href: '/interview',
-      icon: MessageSquare,
-      label: 'Interview Prep',
-    },
-    {
-      href: '/networking',
-      icon: Users,
-      label: 'Networking',
+      label: t.navigation.profile,
     },
     {
       href: '/ai-tools',
       icon: Zap,
-      label: 'AI Tools',
-    },
-    {
-      href: '/settings',
-      icon: Settings,
-      label: 'Settings',
+      label: t.navigation.aiTools,
     },
   ]
 
@@ -131,20 +119,28 @@ export function Sidebar() {
         </div>
       </nav>
 
-      {/* User Profile Section */}
-      {!collapsed && (
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
-            <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-              <User size={16} />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">John Doe</p>
-              <p className="text-xs text-gray-500">Premium User</p>
+      {/* Language Selector and User Profile Section */}
+      <div className="border-t border-gray-200">
+        {/* Language Selector */}
+        <div className="p-4">
+          <LanguageSelector collapsed={collapsed} />
+        </div>
+        
+        {/* User Profile Section */}
+        {!collapsed && (
+          <div className="p-4 pt-0">
+            <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                <User size={16} />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-900">John Doe</p>
+                <p className="text-xs text-gray-500">Premium User</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

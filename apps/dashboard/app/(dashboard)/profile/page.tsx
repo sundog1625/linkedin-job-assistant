@@ -1,14 +1,18 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/context'
+
 export const dynamic = 'force-dynamic'
 
 export default function ProfilePage() {
+  const { t } = useI18n()
+  
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">LinkedIn Profile Optimizer</h1>
+        <h1 className="text-3xl font-bold">{t.profile.title}</h1>
         <p className="text-muted-foreground mt-2">
-          Optimize your LinkedIn profile to attract recruiters
+          {t.profile.subtitle}
         </p>
       </div>
       

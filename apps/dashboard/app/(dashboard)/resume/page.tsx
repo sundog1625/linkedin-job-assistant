@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/hooks/use-toast'
 import { SuccessModal } from '@/components/SuccessModal'
+import { useI18n } from '@/lib/i18n/context'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,6 +23,7 @@ interface UserProfile {
 }
 
 export default function ResumePage() {
+  const { t } = useI18n()
   const [resumeText, setResumeText] = useState('')
   const [language, setLanguage] = useState('zh-CN')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -52,8 +54,8 @@ export default function ResumePage() {
           console.log('从数据库加载档案:', result.profile)
           setAnalyzedProfile(result.profile) // 设置到状态中
           toast({
-            title: "档案已加载",
-            description: "已成功加载您的简历档案"
+            title: t.resume.profileLoaded,
+            description: t.resume.profileLoadedFromDb
           })
           return
         }
@@ -69,8 +71,8 @@ export default function ResumePage() {
       console.log('从本地存储加载档案:', profile)
       setAnalyzedProfile(profile) // 设置到状态中
       toast({
-        title: "档案已加载",
-        description: "已从本地存储加载您的简历档案"
+        title: t.resume.profileLoaded,
+        description: t.resume.profileLoadedFromLocal
       })
     }
   }
@@ -78,8 +80,8 @@ export default function ResumePage() {
   const analyzeResume = async () => {
     if (!resumeText.trim() || resumeText.length < 50) {
       toast({
-        title: "简历内容不足",
-        description: "请输入更完整的简历内容（至少50个字符）",
+        title: t.resume.resumeInsufficient,
+        description: t.resume.resumeInsufficientDesc,
         variant: "destructive"
       })
       return
@@ -101,7 +103,7 @@ export default function ResumePage() {
       })
 
       if (!response.ok) {
-        throw new Error('分析失败，请重试')
+        throw new Error(t.resume.analysisFailedDesc)
       }
 
       const result = await response.json()
@@ -109,17 +111,17 @@ export default function ResumePage() {
       if (result.success) {
         setAnalyzedProfile(result.profile)
         toast({
-          title: "分析完成",
-          description: "AI已成功分析您的简历内容"
+          title: t.resume.analysisComplete,
+          description: t.resume.analysisCompleteDesc
         })
       } else {
-        throw new Error(result.error || '分析失败')
+        throw new Error(result.error || t.resume.analysisFailed)
       }
     } catch (error) {
       console.error('Resume analysis failed:', error)
       toast({
-        title: "分析失败",
-        description: error instanceof Error ? error.message : "请重试",
+        title: t.resume.analysisFailed,
+        description: error instanceof Error ? error.message : t.resume.analysisTryAgain,
         variant: "destructive"
       })
     } finally {
@@ -181,8 +183,8 @@ export default function ResumePage() {
       
       // 即使API失败，localStorage已经保存了
       toast({
-        title: "保存到本地",
-        description: "已保存到本地存储，云端保存失败",
+        title: t.resume.savedToLocal,
+        description: t.resume.savedToLocalDesc,
         variant: "default"
       })
       
@@ -212,35 +214,28 @@ export default function ResumePage() {
     return (
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">📝 智能简历设置</h1>
+          <h1 className="text-3xl font-bold text-gray-900">📝 {t.resume.setupTitle}</h1>
           <p className="text-gray-600 mt-2">
-            上传简历内容，AI自动提取关键信息
+            {t.resume.setupDescription}
           </p>
         </div>
 
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              📄 上传您的简历
+              📄 {t.resume.uploadTitle}
             </CardTitle>
             <CardDescription>
-              支持文本格式或复制粘贴简历内容，AI将自动分析并提取关键信息
+              {t.resume.uploadDescription}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                📋 简历内容
+                📋 {t.resume.contentLabel}
               </label>
               <Textarea
-                placeholder="请粘贴您的简历内容，或直接输入个人信息：
-
-• 基本信息（姓名、联系方式）
-• 工作经验和成就
-• 技能和专长
-• 教育背景
-• 项目经验
-• 语言能力等"
+                placeholder={t.resume.contentPlaceholder}
                 value={resumeText}
                 onChange={(e) => setResumeText(e.target.value)}
                 className="min-h-[200px] resize-none"
@@ -249,7 +244,7 @@ export default function ResumePage() {
 
             <div className="flex items-center gap-4">
               <label className="text-sm font-medium text-gray-700">
-                🌐 分析语言:
+                🌐 {t.resume.languageLabel}
               </label>
               <Select value={language} onValueChange={setLanguage}>
                 <SelectTrigger className="w-32">
@@ -273,14 +268,14 @@ export default function ResumePage() {
                 {isAnalyzing ? (
                   <>
                     <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                    AI正在分析...
+                    {t.resume.aiAnalyzing}
                   </>
                 ) : (
-                  <>🤖 AI分析简历</>
+                  <>🤖 {t.resume.aiAnalyze}</>
                 )}
               </Button>
               <Button variant="outline" onClick={() => setEditMode(true)}>
-                ✏️ 手动填写
+                ✏️ {t.resume.manualFill}
               </Button>
             </div>
           </CardContent>
@@ -393,10 +388,10 @@ export default function ResumePage() {
 
               <div className="flex gap-4 mt-6">
                 <Button onClick={saveProfile} className="flex-1">
-                  💾 保存档案
+                  💾 {t.resume.saveProfile}
                 </Button>
                 <Button variant="outline" onClick={handleEdit}>
-                  ✏️ 编辑
+                  ✏️ {t.resume.edit}
                 </Button>
               </div>
             </CardContent>
@@ -410,9 +405,9 @@ export default function ResumePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">📝 Resume Manager</h1>
+        <h1 className="text-3xl font-bold">📝 {t.resume.managerTitle}</h1>
         <p className="text-muted-foreground mt-2">
-          管理您的简历档案和求职信息
+          {t.resume.managerSubtitle}
         </p>
       </div>
       
@@ -421,13 +416,13 @@ export default function ResumePage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>✅ 您的简历档案</span>
+              <span>✅ {t.resume.yourProfile}</span>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => setEditMode(!editMode)}>
-                  {editMode ? '完成' : '✏️ 编辑'}
+                  {editMode ? t.resume.completeEdit : `✏️ ${t.resume.edit}`}
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => setShowSetupMode(true)}>
-                  🔄 重新分析
+                  🔄 {t.resume.reAnalyze}
                 </Button>
                 <Button 
                   size="sm" 
@@ -437,27 +432,27 @@ export default function ResumePage() {
                     window.location.href = '/jobs?action=generate-resume&from=resume-manager'
                   }}
                 >
-                  🎯 生成针对性简历
+                  🎯 {t.resume.generateTargetedResume}
                 </Button>
               </div>
             </CardTitle>
             <CardDescription>
-              您的简历信息已保存，LinkedIn Job Assistant将使用这些信息进行职位匹配
+              {t.resume.profileDescription}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {editMode ? (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">💼 核心技能</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">💼 {t.resume.form.skills}</label>
                   <Input
                     value={Array.isArray(analyzedProfile.skills) ? analyzedProfile.skills.join(', ') : ''}
                     onChange={(e) => updateField('skills', e.target.value.split(',').map(s => s.trim()).filter(s => s))}
-                    placeholder="如: React, JavaScript, Python"
+                    placeholder={t.resume.form.skillsPlaceholder}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">📚 工作经验</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">📚 {t.resume.form.experience}</label>
                   <Textarea
                     value={analyzedProfile.experience}
                     onChange={(e) => updateField('experience', e.target.value)}
@@ -465,21 +460,21 @@ export default function ResumePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">🎓 教育背景</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">🎓 {t.resume.form.education}</label>
                   <Input
                     value={analyzedProfile.education}
                     onChange={(e) => updateField('education', e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">📍 期望地点</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">📍 {t.resume.form.location}</label>
                   <Input
                     value={analyzedProfile.location}
                     onChange={(e) => updateField('location', e.target.value)}
                   />
                 </div>
                 <Button onClick={saveProfile} className="w-full">
-                  💾 保存更改
+                  💾 {t.common.save}
                 </Button>
               </div>
             ) : (
@@ -528,12 +523,12 @@ export default function ResumePage() {
         <Card>
           <CardContent className="text-center py-12">
             <div className="text-6xl mb-4">📄</div>
-            <h3 className="text-xl font-semibold mb-2">还没有简历档案</h3>
+            <h3 className="text-xl font-semibold mb-2">{t.resume.noProfile}</h3>
             <p className="text-gray-500 mb-4">
-              创建您的简历档案，让AI帮您匹配最合适的职位
+              {t.resume.noProfileDesc}
             </p>
             <Button onClick={() => setShowSetupMode(true)}>
-              ➕ 创建简历档案
+              ➕ {t.resume.createProfile}
             </Button>
           </CardContent>
         </Card>
@@ -543,7 +538,7 @@ export default function ResumePage() {
       <SuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        title="保存成功！"
+        title={`${t.common.success}!`}
         message={successMessage}
       />
     </div>

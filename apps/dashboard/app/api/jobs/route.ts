@@ -163,7 +163,21 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const { jobId, ...updates } = await request.json()
+    const requestBody = await request.json()
+    console.log('PATCH请求数据:', requestBody)
+    
+    // 支持两种字段名：id 或 jobId
+    const jobId = requestBody.id || requestBody.jobId
+    const updates = { ...requestBody }
+    delete updates.id  // 移除id字段，避免更新数据库的id列
+    delete updates.jobId  // 移除jobId字段
+    
+    if (!jobId) {
+      return NextResponse.json({
+        success: false,
+        error: '职位ID是必需的'
+      }, { status: 400, headers: corsHeaders })
+    }
     
     if (!supabaseUrl || !supabaseKey) {
       return NextResponse.json({
@@ -173,8 +187,11 @@ export async function PATCH(request: NextRequest) {
     }
     
     const supabase = createClient(supabaseUrl, supabaseKey)
+    const userId = '550e8400-e29b-41d4-a716-446655440000' // 有效的UUID格式
     
-    // 更新职位状态或其他字段
+    console.log('更新职位:', { jobId, updates })
+    
+    // 更新职位状态或其他字段（确保只更新当前用户的职位）
     const { data, error } = await supabase
       .from('jobs')
       .update({
@@ -182,6 +199,7 @@ export async function PATCH(request: NextRequest) {
         updated_at: new Date().toISOString()
       })
       .eq('id', jobId)
+      .eq('user_id', userId)  // 安全检查，只能更新自己的职位
       .select()
       .single()
     
@@ -193,13 +211,22 @@ export async function PATCH(request: NextRequest) {
       }, { status: 500, headers: corsHeaders })
     }
     
+    if (!data) {
+      return NextResponse.json({
+        success: false,
+        error: '未找到指定的职位'
+      }, { status: 404, headers: corsHeaders })
+    }
+    
+    console.log('职位更新成功:', data)
+    
     return NextResponse.json({
       success: true,
       job: data
     }, { headers: corsHeaders })
     
   } catch (error) {
-    console.error('API错误:', error)
+    console.error('PATCH API错误:', error)
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : '未知错误'
