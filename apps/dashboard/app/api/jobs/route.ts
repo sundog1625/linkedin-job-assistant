@@ -206,3 +206,54 @@ export async function PATCH(request: NextRequest) {
     }, { status: 500, headers: corsHeaders })
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const jobId = searchParams.get('id')
+    
+    if (!jobId) {
+      return NextResponse.json({
+        success: false,
+        error: '职位ID是必需的'
+      }, { status: 400, headers: corsHeaders })
+    }
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json({
+        success: false,
+        error: 'Supabase未配置'
+      }, { status: 500, headers: corsHeaders })
+    }
+    
+    const supabase = createClient(supabaseUrl, supabaseKey)
+    const userId = '550e8400-e29b-41d4-a716-446655440000' // 有效的UUID格式
+    
+    // 删除职位 (确保只删除当前用户的职位)
+    const { error } = await supabase
+      .from('jobs')
+      .delete()
+      .eq('id', jobId)
+      .eq('user_id', userId)
+    
+    if (error) {
+      console.error('删除职位失败:', error)
+      return NextResponse.json({
+        success: false,
+        error: error.message
+      }, { status: 500, headers: corsHeaders })
+    }
+    
+    return NextResponse.json({
+      success: true,
+      message: '职位已成功删除'
+    }, { headers: corsHeaders })
+    
+  } catch (error) {
+    console.error('API错误:', error)
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : '未知错误'
+    }, { status: 500, headers: corsHeaders })
+  }
+}

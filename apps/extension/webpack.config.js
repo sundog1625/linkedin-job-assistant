@@ -3,8 +3,8 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
-    background: './src/background/index.ts',
-    content: './src/content/safe-version.tsx',
+    background: './src/background/simple-background.js',
+    content: './src/content/index.tsx',
     popup: './src/popup/index.tsx',
   },
   output: {
@@ -39,7 +39,6 @@ module.exports = {
         { from: 'simple-test.html', to: 'simple-test.html' },
         { from: 'debug-popup.html', to: 'debug-popup.html' },
         { from: 'debug-popup.js', to: 'debug-popup.js' },
-        { from: 'simple-background.js', to: 'simple-background.js' },
         { from: 'smart-popup.html', to: 'smart-popup.html' },
         { from: 'smart-popup.js', to: 'smart-popup.js' },
       ],

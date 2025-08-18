@@ -25,7 +25,7 @@ export function QuickActions() {
       title: 'Create Resume',
       description: 'Generate a new resume version',
       icon: FileText,
-      href: '/resume/new',
+      href: '/resume?setup=true',
       color: 'bg-green-500 hover:bg-green-600',
     },
     {

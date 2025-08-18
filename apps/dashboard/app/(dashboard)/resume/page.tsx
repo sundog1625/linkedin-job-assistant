@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/hooks/use-toast'
+import { SuccessModal } from '@/components/SuccessModal'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,14 +28,52 @@ export default function ResumePage() {
   const [analyzedProfile, setAnalyzedProfile] = useState<UserProfile | null>(null)
   const [showSetupMode, setShowSetupMode] = useState(false)
   const [editMode, setEditMode] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
 
-  // 检查URL参数是否包含setup=true
+  // 检查URL参数是否包含setup=true，并加载已保存的档案
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     if (urlParams.get('setup') === 'true') {
       setShowSetupMode(true)
     }
+    
+    // 尝试加载已保存的档案
+    loadSavedProfile()
   }, [])
+  
+  const loadSavedProfile = async () => {
+    try {
+      // 先尝试从API加载
+      const response = await fetch('/api/save-profile')
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success && result.profile) {
+          console.log('从数据库加载档案:', result.profile)
+          setAnalyzedProfile(result.profile) // 设置到状态中
+          toast({
+            title: "档案已加载",
+            description: "已成功加载您的简历档案"
+          })
+          return
+        }
+      }
+    } catch (error) {
+      console.log('从数据库加载失败，尝试本地存储')
+    }
+    
+    // 如果API失败，从localStorage加载
+    const saved = localStorage.getItem('userProfile')
+    if (saved) {
+      const profile = JSON.parse(saved)
+      console.log('从本地存储加载档案:', profile)
+      setAnalyzedProfile(profile) // 设置到状态中
+      toast({
+        title: "档案已加载",
+        description: "已从本地存储加载您的简历档案"
+      })
+    }
+  }
 
   const analyzeResume = async () => {
     if (!resumeText.trim() || resumeText.length < 50) {
@@ -89,28 +128,70 @@ export default function ResumePage() {
   }
 
   const saveProfile = async () => {
-    if (!analyzedProfile) return
+    console.log('保存按钮被点击了')
+    console.log('当前analyzedProfile:', analyzedProfile)
+    
+    if (!analyzedProfile) {
+      console.log('没有分析数据，无法保存')
+      return
+    }
     
     try {
-      // 这里可以调用API保存到数据库
-      // 也可以保存到localStorage作为临时方案
+      // 先保存到localStorage（即时保存）
       localStorage.setItem('userProfile', JSON.stringify(analyzedProfile))
+      console.log('已保存到localStorage')
       
-      toast({
-        title: "保存成功",
-        description: "您的简历档案已保存",
+      // 调用API保存到数据库
+      const response = await fetch('/api/save-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(analyzedProfile)
       })
       
-      // 关闭当前窗口或跳转回LinkedIn
-      if (window.opener) {
-        window.close()
+      const result = await response.json()
+      
+      if (result.success) {
+        console.log('已保存到数据库:', result.message)
+        
+        // 也尝试保存到Chrome扩展的storage（如果可用）
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+          chrome.storage.local.set({ userProfile: analyzedProfile }, () => {
+            console.log('已保存到Chrome Storage')
+          })
+        }
+        
+        // 显示美化的成功弹窗
+        setSuccessMessage(result.message || "您的简历档案已保存到云端数据库")
+        setShowSuccessModal(true)
+        
+        // 延迟重置状态，让用户看到成功效果
+        setTimeout(() => {
+          setShowSetupMode(false)
+          setAnalyzedProfile(null)
+          setResumeText('')
+        }, 2000)
+      } else {
+        throw new Error(result.error || '保存失败')
       }
+      
     } catch (error) {
+      console.error('保存失败:', error)
+      
+      // 即使API失败，localStorage已经保存了
       toast({
-        title: "保存失败",
-        description: "请重试",
-        variant: "destructive"
+        title: "保存到本地",
+        description: "已保存到本地存储，云端保存失败",
+        variant: "default"
       })
+      
+      alert('已保存到本地存储')
+      
+      // 依然返回主页面
+      setShowSetupMode(false)
+      setAnalyzedProfile(null)
+      setResumeText('')
     }
   }
 
@@ -267,6 +348,11 @@ export default function ResumePage() {
                       placeholder="如: 中文（母语）, 英语（流利）"
                     />
                   </div>
+                  <div className="flex gap-4 mt-4">
+                    <Button onClick={() => setEditMode(false)} className="flex-1">
+                      ✅ 完成编辑
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="grid gap-4">
@@ -324,22 +410,142 @@ export default function ResumePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Resume Manager</h1>
+        <h1 className="text-3xl font-bold">📝 Resume Manager</h1>
         <p className="text-muted-foreground mt-2">
-          Create and manage multiple resume versions
+          管理您的简历档案和求职信息
         </p>
       </div>
       
-      <div className="bg-white p-8 rounded-lg shadow text-center">
-        <div className="text-6xl mb-4">📄</div>
-        <h3 className="text-xl font-semibold mb-2">Resume Builder</h3>
-        <p className="text-gray-500 mb-4">
-          Create tailored resumes for different job opportunities
-        </p>
-        <Button onClick={() => setShowSetupMode(true)}>
-          Create Resume
-        </Button>
-      </div>
+      {/* 如果已有保存的档案，显示档案信息 */}
+      {analyzedProfile ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>✅ 您的简历档案</span>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => setEditMode(!editMode)}>
+                  {editMode ? '完成' : '✏️ 编辑'}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setShowSetupMode(true)}>
+                  🔄 重新分析
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="default"
+                  onClick={() => {
+                    // 添加URL参数以便在Jobs页面显示提示
+                    window.location.href = '/jobs?action=generate-resume&from=resume-manager'
+                  }}
+                >
+                  🎯 生成针对性简历
+                </Button>
+              </div>
+            </CardTitle>
+            <CardDescription>
+              您的简历信息已保存，LinkedIn Job Assistant将使用这些信息进行职位匹配
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {editMode ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">💼 核心技能</label>
+                  <Input
+                    value={Array.isArray(analyzedProfile.skills) ? analyzedProfile.skills.join(', ') : ''}
+                    onChange={(e) => updateField('skills', e.target.value.split(',').map(s => s.trim()).filter(s => s))}
+                    placeholder="如: React, JavaScript, Python"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">📚 工作经验</label>
+                  <Textarea
+                    value={analyzedProfile.experience}
+                    onChange={(e) => updateField('experience', e.target.value)}
+                    className="min-h-[100px]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">🎓 教育背景</label>
+                  <Input
+                    value={analyzedProfile.education}
+                    onChange={(e) => updateField('education', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">📍 期望地点</label>
+                  <Input
+                    value={analyzedProfile.location}
+                    onChange={(e) => updateField('location', e.target.value)}
+                  />
+                </div>
+                <Button onClick={saveProfile} className="w-full">
+                  💾 保存更改
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <span className="font-medium text-gray-700 min-w-[80px]">💼 技能:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {analyzedProfile.skills?.map((skill, index) => (
+                      <Badge key={index} variant="secondary">{skill}</Badge>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="font-medium text-gray-700 min-w-[80px]">📚 经验:</span>
+                  <span className="text-gray-600">{analyzedProfile.experience}</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="font-medium text-gray-700 min-w-[80px]">🎓 教育:</span>
+                  <span className="text-gray-600">{analyzedProfile.education}</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="font-medium text-gray-700 min-w-[80px]">📍 地点:</span>
+                  <span className="text-gray-600">{analyzedProfile.location}</span>
+                </div>
+                {analyzedProfile.preferredRoles && (
+                  <div className="flex items-start gap-3">
+                    <span className="font-medium text-gray-700 min-w-[80px]">🎯 职位:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {analyzedProfile.preferredRoles.map((role, index) => (
+                        <Badge key={index} variant="outline">{role}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {analyzedProfile.languages && (
+                  <div className="flex items-start gap-3">
+                    <span className="font-medium text-gray-700 min-w-[80px]">🌐 语言:</span>
+                    <span className="text-gray-600">{analyzedProfile.languages.join(', ')}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="text-center py-12">
+            <div className="text-6xl mb-4">📄</div>
+            <h3 className="text-xl font-semibold mb-2">还没有简历档案</h3>
+            <p className="text-gray-500 mb-4">
+              创建您的简历档案，让AI帮您匹配最合适的职位
+            </p>
+            <Button onClick={() => setShowSetupMode(true)}>
+              ➕ 创建简历档案
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 成功弹窗 */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="保存成功！"
+        message={successMessage}
+      />
     </div>
   )
 }

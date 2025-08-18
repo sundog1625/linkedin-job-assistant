@@ -87,6 +87,184 @@ class SafeLinkedInAssistant {
     }
   }
 
+  private async addJobToTracker() {
+    try {
+      console.log('📝 添加职位到Job Tracker...');
+      
+      // 获取当前职位信息
+      const jobData = this.extractJobData();
+      if (!jobData) {
+        console.error('❌ 无法获取职位信息');
+        alert('无法获取当前职位信息，请刷新页面重试');
+        return;
+      }
+
+      // 获取申请人数（尝试抓取）
+      const applicantCount = this.extractApplicantCount();
+      
+      // 计算匹配度
+      const matchScore = await this.calculateMatchScore(jobData);
+      
+      // 构建完整的职位数据
+      const fullJobData = {
+        ...jobData,
+        applicant_count: applicantCount,
+        match_score: matchScore,
+        status: 'saved', // 默认状态为已保存
+        posted_date: this.extractPostedDate(),
+        saved_at: new Date().toISOString()
+      };
+
+      console.log('📋 职位数据准备完成:', fullJobData);
+
+      // 调用API保存到数据库
+      const response = await fetch('https://linkedin-job-assistant-dashboard-w7.vercel.app/api/jobs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(fullJobData)
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('✅ 职位已成功添加到Job Tracker');
+        
+        // 显示成功提示
+        this.showSuccessMessage('职位已添加到Dashboard Job Tracker！');
+        
+        // 可选：打开Job Tracker页面
+        const openTracker = confirm('职位已成功保存！是否立即查看Job Tracker？');
+        if (openTracker) {
+          window.open('https://linkedin-job-assistant-dashboard-w7.vercel.app/jobs', '_blank');
+        }
+      } else {
+        throw new Error(result.error || '保存失败');
+      }
+
+    } catch (error) {
+      console.error('❌ 添加职位失败:', error);
+      alert('添加职位失败，请重试');
+    }
+  }
+
+  private extractApplicantCount(): number | null {
+    try {
+      // 尝试多种选择器来获取申请人数
+      const selectors = [
+        '[data-test-id="applicant-count"]',
+        '.jobs-unified-top-card__subtitle-secondary-grouping .tvm__text',
+        '.jobs-unified-top-card__subtitle-secondary-grouping span',
+        'span:contains("applicant")',
+        'span:contains("application")'
+      ];
+
+      for (const selector of selectors) {
+        const element = document.querySelector(selector);
+        if (element && element.textContent) {
+          const text = element.textContent;
+          const match = text.match(/(\d+)\s*(?:applicant|application)/i);
+          if (match) {
+            return parseInt(match[1]);
+          }
+        }
+      }
+
+      // 尝试从页面文本中提取
+      const pageText = document.body.textContent || '';
+      const applicantMatch = pageText.match(/(\d+)\s*(?:applicant|application)/i);
+      if (applicantMatch) {
+        return parseInt(applicantMatch[1]);
+      }
+
+      return null;
+    } catch (error) {
+      console.warn('⚠️ 无法获取申请人数:', error);
+      return null;
+    }
+  }
+
+  private extractPostedDate(): string | null {
+    try {
+      // 尝试获取发布时间
+      const selectors = [
+        '[data-test-id="posted-time"]',
+        '.jobs-unified-top-card__subtitle-secondary-grouping time',
+        '.jobs-unified-top-card__posted-date',
+        'time[datetime]'
+      ];
+
+      for (const selector of selectors) {
+        const element = document.querySelector(selector);
+        if (element) {
+          const datetime = element.getAttribute('datetime');
+          if (datetime) return datetime;
+          
+          const text = element.textContent;
+          if (text) {
+            // 解析相对时间，如"2 days ago"
+            if (text.includes('day')) {
+              const days = parseInt(text.match(/(\d+)/)?.[1] || '0');
+              const date = new Date();
+              date.setDate(date.getDate() - days);
+              return date.toISOString();
+            }
+            if (text.includes('hour')) {
+              const hours = parseInt(text.match(/(\d+)/)?.[1] || '0');
+              const date = new Date();
+              date.setHours(date.getHours() - hours);
+              return date.toISOString();
+            }
+          }
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.warn('⚠️ 无法获取发布时间:', error);
+      return null;
+    }
+  }
+
+  private showSuccessMessage(message: string) {
+    // 创建成功提示
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 10001;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+      animation: slideInFromRight 0.3s ease-out;
+    `;
+    toast.textContent = `✅ ${message}`;
+
+    // 添加动画样式
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideInFromRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    document.body.appendChild(toast);
+
+    // 3秒后自动移除
+    setTimeout(() => {
+      toast.remove();
+      style.remove();
+    }, 3000);
+  }
+
   private showResumeModal() {
     // 创建模态框遮罩
     const modalOverlay = document.createElement('div');
@@ -406,6 +584,17 @@ class SafeLinkedInAssistant {
               <option value="ja-JP">日本語</option>
               <option value="ko-KR">한국어</option>
             </select>
+            <button id="add-job-btn" style="
+              background: linear-gradient(135deg, #10b981, #059669);
+              border: none;
+              cursor: pointer;
+              padding: 8px 12px;
+              border-radius: 8px;
+              color: white;
+              font-size: 12px;
+              font-weight: 600;
+              margin-right: 8px;
+            " title="添加到Job Tracker">➕ Add Job</button>
             <button id="refresh-btn" style="
               background: rgba(102, 126, 234, 0.1);
               border: none;
@@ -693,6 +882,14 @@ class SafeLinkedInAssistant {
     if (closeBtn) {
       closeBtn.addEventListener('click', () => {
         this.removePanel();
+      });
+    }
+
+    // Add Job 按钮
+    const addJobBtn = this.panel.querySelector('#add-job-btn');
+    if (addJobBtn) {
+      addJobBtn.addEventListener('click', () => {
+        this.addJobToTracker();
       });
     }
 
