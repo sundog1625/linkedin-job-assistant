@@ -146,7 +146,7 @@ B.S. Computer Science | University of Technology | 2020`,
         
         toast({
           title: 'Processing PDF...',
-          description: 'Extracting text from PDF file'
+          description: 'Extracting text content from PDF file, this may take a moment'
         })
 
         const response = await fetch('/api/parse-file', {
@@ -161,14 +161,12 @@ B.S. Computer Science | University of Technology | 2020`,
         const result = await response.json()
         if (result.success) {
           content = result.text
-        } else {
-          // Show specific guidance for PDF files
           toast({
-            title: 'PDF Text Extraction',
-            description: result.error + ' ' + (result.suggestion || ''),
-            variant: 'default'
+            title: 'PDF processed successfully',
+            description: `Extracted ${result.metadata?.textLength || 'text'} characters from ${file.name}`
           })
-          return // Exit early for PDF files that can't be parsed
+        } else {
+          throw new Error(result.error || 'Failed to extract text from PDF')
         }
       } else if (file.type === 'text/plain') {
         // Handle text files
