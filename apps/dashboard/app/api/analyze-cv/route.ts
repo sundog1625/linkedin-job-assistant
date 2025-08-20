@@ -18,8 +18,11 @@ interface CVAnalysisResult {
 }
 
 export async function POST(request: NextRequest) {
+  let requestBody: any = {}
+  
   try {
-    const { cvContent, jobDescription } = await request.json()
+    requestBody = await request.json()
+    const { cvContent, jobDescription } = requestBody
 
     if (!cvContent) {
       return NextResponse.json(
@@ -28,7 +31,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const apiKey = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY
+
+    if (!apiKey) {
+      console.error('No API key found in environment variables')
+      // Return fallback analysis if no API key
+      const fallbackAnalysis = generateFallbackAnalysis(cvContent, jobDescription)
+      return NextResponse.json({
+        success: true,
+        analysis: fallbackAnalysis,
+        timestamp: new Date().toISOString(),
+        note: 'Using fallback analysis (API key not configured)'
+      })
+    }
+
     console.log('🤖 Analyzing CV with AI...')
+    console.log('API Key exists:', !!apiKey)
+    console.log('API Key preview:', apiKey.substring(0, 20) + '...')
 
     // Call Claude API for CV analysis
     const analysisPrompt = `
@@ -68,11 +87,11 @@ Focus on:
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY || '',
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-sonnet-20240229',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 2000,
         messages: [
           {
@@ -84,10 +103,18 @@ Focus on:
     })
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status}`)
+      const errorText = await response.text()
+      console.error(`API request failed: ${response.status}`, errorText)
+      throw new Error(`API request failed: ${response.status} - ${errorText}`)
     }
 
     const result = await response.json()
+    console.log('API Response received:', !!result.content)
+    
+    if (!result.content || !result.content[0] || !result.content[0].text) {
+      throw new Error('Invalid API response format')
+    }
+    
     const analysisText = result.content[0].text
 
     // Try to parse JSON from the response
@@ -112,11 +139,12 @@ Focus on:
   } catch (error) {
     console.error('CV analysis error:', error)
     
+    // Use the already parsed request body for fallback analysis
+    const cvContentForFallback = requestBody.cvContent || ''
+    const jobDescriptionForFallback = requestBody.jobDescription || ''
+    
     // Return fallback analysis on error
-    const fallbackAnalysis = generateFallbackAnalysis(
-      request.json().then(body => body.cvContent).catch(() => ''),
-      request.json().then(body => body.jobDescription).catch(() => '')
-    )
+    const fallbackAnalysis = generateFallbackAnalysis(cvContentForFallback, jobDescriptionForFallback)
 
     return NextResponse.json({
       success: true,
