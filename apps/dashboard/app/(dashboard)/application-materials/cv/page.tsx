@@ -107,9 +107,11 @@ B.S. Computer Science | University of Technology | 2020`,
   const [editName, setEditName] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState<string | null>(null)
   const [analysisResults, setAnalysisResults] = useState<{[key: string]: CVAnalysis}>({})
+  const [manualCvName, setManualCvName] = useState('')
+  const [manualCvContent, setManualCvContent] = useState('')
 
   // File upload handler
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
 
@@ -134,10 +136,66 @@ B.S. Computer Science | University of Technology | 2020`,
       return
     }
 
-    // Read file content
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const content = e.target?.result as string
+    try {
+      let content = ''
+
+      if (file.type === 'application/pdf') {
+        // Handle PDF files by sending to server for parsing
+        const formData = new FormData()
+        formData.append('file', file)
+        
+        toast({
+          title: 'Processing PDF...',
+          description: 'Extracting text from PDF file'
+        })
+
+        const response = await fetch('/api/parse-file', {
+          method: 'POST',
+          body: formData
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to parse PDF')
+        }
+
+        const result = await response.json()
+        if (result.success) {
+          content = result.text
+        } else {
+          // Show specific guidance for PDF files
+          toast({
+            title: 'PDF Text Extraction',
+            description: result.error + ' ' + (result.suggestion || ''),
+            variant: 'default'
+          })
+          return // Exit early for PDF files that can't be parsed
+        }
+      } else if (file.type === 'text/plain') {
+        // Handle text files
+        content = await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = (e) => resolve(e.target?.result as string)
+          reader.onerror = () => reject(new Error('Failed to read text file'))
+          reader.readAsText(file)
+        })
+      } else {
+        // For DOC/DOCX files, show a message for now
+        toast({
+          title: 'DOC/DOCX Support',
+          description: 'For best results, please convert to PDF or copy-paste the text content',
+          variant: 'default'
+        })
+        
+        // Try to read as text (may not work well for binary formats)
+        content = await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = (e) => resolve(e.target?.result as string)
+          reader.onerror = () => reject(new Error('Failed to read file'))
+          reader.readAsText(file)
+        })
+      }
+
+      // Create CV entry
       const newCV: CV = {
         id: Date.now().toString(),
         name: file.name.replace(/\.[^/.]+$/, ''),
@@ -158,21 +216,14 @@ B.S. Computer Science | University of Technology | 2020`,
         title: t.applicationMaterials.cv.upload + ' successful',
         description: `${file.name} has been added to your CV library`
       })
-    }
-    
-    reader.onerror = () => {
+
+    } catch (error) {
+      console.error('File upload error:', error)
       toast({
-        title: 'File read error',
-        description: 'Could not read the file. Please try again.',
+        title: 'Upload failed',
+        description: error instanceof Error ? error.message : 'Failed to process the file. Please try again.',
         variant: 'destructive'
       })
-    }
-
-    if (file.type === 'text/plain') {
-      reader.readAsText(file)
-    } else {
-      // For PDF/DOC files, we'd need a proper parser in production
-      reader.readAsText(file)
     }
   }
 
@@ -397,6 +448,48 @@ EDUCATION
     })
   }
 
+  // Create CV from manual text input
+  const createFromManualInput = () => {
+    if (!manualCvName.trim() || !manualCvContent.trim()) {
+      toast({
+        title: 'Required fields missing',
+        description: 'Please enter both CV name and content',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (manualCvContent.trim().length < 50) {
+      toast({
+        title: 'Content too short',
+        description: 'Please enter at least 50 characters of CV content',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    const newCV: CV = {
+      id: Date.now().toString(),
+      name: manualCvName.trim(),
+      version: '1.0',
+      lastModified: new Date().toISOString().split('T')[0],
+      size: `${Math.round(manualCvContent.length / 1024)} KB`,
+      type: 'master',
+      content: manualCvContent.trim()
+    }
+
+    setCvList([...cvList, newCV])
+    
+    // Clear the form
+    setManualCvName('')
+    setManualCvContent('')
+
+    toast({
+      title: 'CV created successfully',
+      description: `${newCV.name} has been added to your CV library`
+    })
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -436,6 +529,66 @@ EDUCATION
             <Button>
               <Plus className="mr-2" size={16} />
               Select File
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Manual CV Input */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Create CV from Text</CardTitle>
+          <CardDescription>
+            Paste your CV content directly or type it manually
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">CV Name</label>
+              <Input
+                placeholder="e.g., My Resume - Software Engineer"
+                value={manualCvName}
+                onChange={(e) => setManualCvName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">CV Content</label>
+              <Textarea
+                placeholder="Paste your CV content here...
+
+For PDF files: Open your PDF, select all text (Ctrl+A), copy it, and paste it here.
+
+Example format:
+John Doe
+Software Engineer
+Email: john@example.com | Phone: (555) 123-4567
+
+PROFESSIONAL SUMMARY
+[Your summary here...]
+
+EXPERIENCE
+[Your work experience...]
+
+SKILLS
+[Your skills...]
+
+EDUCATION
+[Your education...]"
+                value={manualCvContent}
+                onChange={(e) => setManualCvContent(e.target.value)}
+                className="min-h-[200px] font-mono text-sm"
+              />
+              <div className="mt-2 text-sm text-gray-500">
+                {manualCvContent.length} characters
+              </div>
+            </div>
+            <Button 
+              onClick={createFromManualInput}
+              disabled={!manualCvName.trim() || !manualCvContent.trim() || manualCvContent.trim().length < 50}
+            >
+              <Plus className="mr-2" size={16} />
+              Create CV
             </Button>
           </div>
         </CardContent>
