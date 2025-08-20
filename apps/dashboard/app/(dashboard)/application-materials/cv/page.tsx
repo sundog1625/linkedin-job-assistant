@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useI18n } from '@/lib/i18n/context'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Textarea } from '@/components/ui/textarea'
+import { Progress } from '@/components/ui/progress'
 import { toast } from '@/hooks/use-toast'
 import { 
   Upload, 
@@ -16,7 +18,13 @@ import {
   Eye,
   Plus,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Save,
+  X,
+  Sparkles,
+  BarChart3,
+  Target,
+  TrendingUp
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -31,10 +39,30 @@ interface CV {
   targetJob?: string
   score?: number
   suggestions?: string[]
+  content?: string
+  analysis?: any
+}
+
+interface CVAnalysis {
+  score: number
+  atsCompatibility: number
+  strengths: string[]
+  improvements: string[]
+  keywordMatch: string[]
+  missingKeywords: string[]
+  detailedAnalysis: {
+    format: { score: number; feedback: string }
+    content: { score: number; feedback: string }
+    keywords: { score: number; feedback: string }
+    achievements: { score: number; feedback: string }
+    skills: { score: number; feedback: string }
+  }
+  suggestions: string[]
 }
 
 export default function CVPage() {
   const { t } = useI18n()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [cvList, setCvList] = useState<CV[]>([
     {
       id: '1',
@@ -44,94 +72,371 @@ export default function CVPage() {
       size: '245 KB',
       type: 'master',
       score: 85,
+      content: `John Doe
+Software Engineer
+Email: john.doe@email.com | Phone: (555) 123-4567
+
+PROFESSIONAL SUMMARY
+Experienced software engineer with 5+ years of expertise in full-stack development. Led development of scalable applications serving 100K+ users. Improved system performance by 40% through optimization techniques.
+
+EXPERIENCE
+Senior Software Engineer | Tech Corp | 2022-Present
+• Developed and maintained React applications with 99.9% uptime
+• Led team of 5 developers, delivering projects 20% ahead of schedule
+• Implemented microservices architecture, reducing load times by 50%
+
+Software Engineer | StartupXYZ | 2020-2022  
+• Built REST APIs serving 10,000+ daily requests
+• Optimized database queries, improving response time by 30%
+• Collaborated with cross-functional teams on product launches
+
+SKILLS
+React, Node.js, TypeScript, AWS, Docker, PostgreSQL, Git, Agile, Leadership
+
+EDUCATION
+B.S. Computer Science | University of Technology | 2020`,
       suggestions: [
         'Add more quantifiable achievements',
         'Update skills section with latest technologies'
       ]
-    },
-    {
-      id: '2',
-      name: 'Frontend Developer - Tech Corp',
-      version: '1.0',
-      lastModified: '2024-01-18',
-      size: '198 KB',
-      type: 'targeted',
-      targetJob: 'Frontend Developer at Tech Corp',
-      score: 92
     }
   ])
 
+  const [editingCv, setEditingCv] = useState<string | null>(null)
+  const [editContent, setEditContent] = useState('')
+  const [editName, setEditName] = useState('')
+  const [isAnalyzing, setIsAnalyzing] = useState<string | null>(null)
+  const [analysisResults, setAnalysisResults] = useState<{[key: string]: CVAnalysis}>({})
+
+  // File upload handler
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (file) {
+    if (!file) return
+
+    // Check file type
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain']
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please upload a PDF, DOC, DOCX, or TXT file',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: 'File too large',
+        description: 'Please upload a file smaller than 10MB',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    // Read file content
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const content = e.target?.result as string
       const newCV: CV = {
         id: Date.now().toString(),
         name: file.name.replace(/\.[^/.]+$/, ''),
         version: '1.0',
         lastModified: new Date().toISOString().split('T')[0],
         size: `${Math.round(file.size / 1024)} KB`,
-        type: 'master'
+        type: 'master',
+        content: content.substring(0, 5000) // Limit content for demo
       }
       setCvList([...cvList, newCV])
+      
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+      
       toast({
-        title: 'CV uploaded successfully',
+        title: t.applicationMaterials.cv.upload + ' successful',
         description: `${file.name} has been added to your CV library`
       })
     }
+    
+    reader.onerror = () => {
+      toast({
+        title: 'File read error',
+        description: 'Could not read the file. Please try again.',
+        variant: 'destructive'
+      })
+    }
+
+    if (file.type === 'text/plain') {
+      reader.readAsText(file)
+    } else {
+      // For PDF/DOC files, we'd need a proper parser in production
+      reader.readAsText(file)
+    }
   }
 
-  const analyzeCV = (cvId: string) => {
+  // Analyze CV
+  const analyzeCV = async (cvId: string) => {
+    const cv = cvList.find(c => c.id === cvId)
+    if (!cv || !cv.content) {
+      toast({
+        title: 'Cannot analyze',
+        description: 'CV content is not available',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    setIsAnalyzing(cvId)
+    
+    try {
+      const response = await fetch('/api/analyze-cv', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cvContent: cv.content
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Analysis failed')
+      }
+
+      const result = await response.json()
+      
+      if (result.success) {
+        setAnalysisResults(prev => ({
+          ...prev,
+          [cvId]: result.analysis
+        }))
+
+        // Update CV with analysis results
+        setCvList(prevList => 
+          prevList.map(c => 
+            c.id === cvId 
+              ? { 
+                  ...c, 
+                  score: result.analysis.score,
+                  suggestions: result.analysis.suggestions.slice(0, 3)
+                }
+              : c
+          )
+        )
+
+        toast({
+          title: 'Analysis complete',
+          description: `CV scored ${result.analysis.score}/100`
+        })
+      } else {
+        throw new Error(result.error || 'Analysis failed')
+      }
+    } catch (error) {
+      console.error('CV analysis failed:', error)
+      toast({
+        title: 'Analysis failed',
+        description: error instanceof Error ? error.message : 'Please try again',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsAnalyzing(null)
+    }
+  }
+
+  // Start editing CV
+  const startEdit = (cvId: string) => {
+    const cv = cvList.find(c => c.id === cvId)
+    if (cv) {
+      setEditingCv(cvId)
+      setEditContent(cv.content || '')
+      setEditName(cv.name)
+    }
+  }
+
+  // Save CV edits
+  const saveEdit = () => {
+    if (!editingCv) return
+
+    setCvList(prevList => 
+      prevList.map(cv => 
+        cv.id === editingCv 
+          ? { 
+              ...cv, 
+              name: editName,
+              content: editContent,
+              lastModified: new Date().toISOString().split('T')[0],
+              version: `${parseFloat(cv.version) + 0.1}`.substring(0, 3)
+            }
+          : cv
+      )
+    )
+
+    setEditingCv(null)
     toast({
-      title: 'Analyzing CV...',
-      description: 'AI analysis will be ready in a moment'
+      title: 'CV updated',
+      description: 'Your CV has been saved successfully'
     })
-    // In production, this would call an API
   }
 
+  // Cancel editing
+  const cancelEdit = () => {
+    setEditingCv(null)
+    setEditContent('')
+    setEditName('')
+  }
+
+  // Download CV
+  const downloadCV = (cv: CV) => {
+    if (!cv.content) {
+      toast({
+        title: 'No content available',
+        description: 'This CV does not have downloadable content',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    const blob = new Blob([cv.content], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${cv.name}_v${cv.version}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    toast({
+      title: 'Download started',
+      description: `${cv.name} is being downloaded`
+    })
+  }
+
+  // Delete CV
   const deleteCV = (cvId: string) => {
     setCvList(cvList.filter(cv => cv.id !== cvId))
+    if (analysisResults[cvId]) {
+      const newResults = { ...analysisResults }
+      delete newResults[cvId]
+      setAnalysisResults(newResults)
+    }
     toast({
-      title: 'CV deleted',
+      title: t.applicationMaterials.cv.delete + 'd',
       description: 'The CV has been removed from your library'
+    })
+  }
+
+  // Create from template
+  const createFromTemplate = () => {
+    const templateCV: CV = {
+      id: Date.now().toString(),
+      name: 'New Resume from Template',
+      version: '1.0',
+      lastModified: new Date().toISOString().split('T')[0],
+      size: '180 KB',
+      type: 'master',
+      content: `[Your Name]
+[Your Title]
+[Email] | [Phone] | [Location]
+
+PROFESSIONAL SUMMARY
+[Brief description of your experience and key achievements]
+
+EXPERIENCE
+[Job Title] | [Company] | [Dates]
+• [Achievement with quantifiable result]
+• [Another achievement with metrics]
+• [Key responsibility or project outcome]
+
+SKILLS
+[List your relevant technical and soft skills]
+
+EDUCATION
+[Degree] | [University] | [Year]`
+    }
+
+    setCvList([...cvList, templateCV])
+    toast({
+      title: 'Template created',
+      description: 'New CV template has been added to your library'
+    })
+  }
+
+  // Import from LinkedIn (mock function)
+  const importFromLinkedIn = () => {
+    toast({
+      title: 'LinkedIn import',
+      description: 'LinkedIn import feature will be available soon',
+      variant: 'default'
+    })
+  }
+
+  // Export all CVs
+  const exportAllCVs = () => {
+    const exportData = {
+      cvs: cvList,
+      analysis: analysisResults,
+      exportDate: new Date().toISOString()
+    }
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `cv-library-export-${new Date().toISOString().split('T')[0]}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    toast({
+      title: 'Export complete',
+      description: 'All CVs have been exported'
     })
   }
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">CV/Resume Management</h1>
+        <h1 className="text-3xl font-bold">{t.applicationMaterials.cv.title}</h1>
         <p className="text-muted-foreground mt-2">
-          Store, manage, and optimize your CV/Resume documents
+          {t.applicationMaterials.cv.subtitle}
         </p>
       </div>
 
       {/* Upload Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Upload CV/Resume</CardTitle>
+          <CardTitle>{t.applicationMaterials.cv.upload}</CardTitle>
           <CardDescription>
-            Upload your CV in PDF, DOC, or DOCX format for analysis and optimization
+            {t.applicationMaterials.cv.uploadDesc}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+          <div 
+            className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer"
+            onClick={() => fileInputRef.current?.click()}
+          >
             <Upload className="mx-auto text-gray-400 mb-4" size={48} />
             <p className="text-gray-600 mb-4">
               Drag and drop your CV here, or click to browse
             </p>
-            <label htmlFor="cv-upload">
-              <Input
-                id="cv-upload"
-                type="file"
-                accept=".pdf,.doc,.docx"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-              <Button as="span" className="cursor-pointer">
-                <Plus className="mr-2" size={16} />
-                Select File
-              </Button>
-            </label>
+            <p className="text-sm text-gray-500 mb-4">
+              Supported formats: PDF, DOC, DOCX, TXT (max 10MB)
+            </p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.doc,.docx,.txt"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
+            <Button>
+              <Plus className="mr-2" size={16} />
+              Select File
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -139,85 +444,195 @@ export default function CVPage() {
       {/* CV Library */}
       <Card>
         <CardHeader>
-          <CardTitle>Your CV Library</CardTitle>
+          <CardTitle>{t.applicationMaterials.cv.library}</CardTitle>
           <CardDescription>
-            Manage your CV versions and targeted resumes
+            {t.applicationMaterials.cv.libraryDesc}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {cvList.map((cv) => (
-              <div key={cv.id} className="border rounded-lg p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <FileText className="text-gray-400 mt-1" size={20} />
-                    <div>
-                      <h4 className="font-medium">{cv.name}</h4>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
-                        <span>Version {cv.version}</span>
-                        <span>•</span>
-                        <span>{cv.size}</span>
-                        <span>•</span>
-                        <span>Modified: {cv.lastModified}</span>
+              <div key={cv.id}>
+                {editingCv === cv.id ? (
+                  /* Edit Mode */
+                  <div className="border rounded-lg p-6 bg-blue-50">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">CV Name</label>
+                        <Input
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          placeholder="Enter CV name"
+                        />
                       </div>
-                      {cv.targetJob && (
-                        <div className="mt-2">
-                          <Badge variant="outline" className="text-xs">
-                            Targeted: {cv.targetJob}
-                          </Badge>
-                        </div>
-                      )}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Content</label>
+                        <Textarea
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          className="min-h-[300px] font-mono text-sm"
+                          placeholder="Paste or edit your CV content here..."
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button onClick={saveEdit}>
+                          <Save className="mr-2" size={16} />
+                          Save Changes
+                        </Button>
+                        <Button variant="outline" onClick={cancelEdit}>
+                          <X className="mr-2" size={16} />
+                          Cancel
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {cv.score && (
-                      <div className="text-right mr-4">
-                        <div className="flex items-center gap-1">
-                          {cv.score >= 80 ? (
-                            <CheckCircle className="text-green-500" size={16} />
-                          ) : (
-                            <AlertCircle className="text-yellow-500" size={16} />
+                ) : (
+                  /* Display Mode */
+                  <div className="border rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3 flex-1">
+                        <FileText className="text-gray-400 mt-1" size={20} />
+                        <div className="flex-1">
+                          <h4 className="font-medium">{cv.name}</h4>
+                          <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
+                            <span>Version {cv.version}</span>
+                            <span>•</span>
+                            <span>{cv.size}</span>
+                            <span>•</span>
+                            <span>Modified: {cv.lastModified}</span>
+                          </div>
+                          {cv.targetJob && (
+                            <div className="mt-2">
+                              <Badge variant="outline" className="text-xs">
+                                Targeted: {cv.targetJob}
+                              </Badge>
+                            </div>
                           )}
-                          <span className="font-medium">{cv.score}/100</span>
                         </div>
-                        <span className="text-xs text-gray-500">ATS Score</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {cv.score && (
+                          <div className="text-right mr-4">
+                            <div className="flex items-center gap-1">
+                              {cv.score >= 80 ? (
+                                <CheckCircle className="text-green-500" size={16} />
+                              ) : (
+                                <AlertCircle className="text-yellow-500" size={16} />
+                              )}
+                              <span className="font-medium">{cv.score}/100</span>
+                            </div>
+                            <span className="text-xs text-gray-500">{t.applicationMaterials.cv.atsScore}</span>
+                          </div>
+                        )}
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => analyzeCV(cv.id)}
+                          disabled={isAnalyzing === cv.id}
+                        >
+                          {isAnalyzing === cv.id ? (
+                            <>
+                              <Sparkles className="animate-spin mr-1" size={14} />
+                              Analyzing...
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="mr-1" size={14} />
+                              {t.applicationMaterials.cv.analyze}
+                            </>
+                          )}
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => startEdit(cv.id)}>
+                          <Edit className="mr-1" size={14} />
+                          {t.applicationMaterials.cv.edit}
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => downloadCV(cv)}>
+                          <Download className="mr-1" size={14} />
+                          {t.applicationMaterials.cv.download}
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => deleteCV(cv.id)}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {/* Analysis Results */}
+                    {analysisResults[cv.id] && (
+                      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-2 mb-3">
+                          <BarChart3 className="text-blue-500" size={16} />
+                          <h5 className="font-medium">Analysis Results</h5>
+                        </div>
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium">Overall Score</span>
+                              <span className="font-bold">{analysisResults[cv.id].score}/100</span>
+                            </div>
+                            <Progress value={analysisResults[cv.id].score} className="h-2" />
+                          </div>
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium">ATS Compatibility</span>
+                              <span className="font-bold">{analysisResults[cv.id].atsCompatibility}/100</span>
+                            </div>
+                            <Progress value={analysisResults[cv.id].atsCompatibility} className="h-2" />
+                          </div>
+                        </div>
+                        
+                        <div className="grid gap-4 md:grid-cols-2 mt-4">
+                          <div>
+                            <h6 className="font-medium text-green-700 mb-2">✅ Strengths</h6>
+                            <ul className="text-sm space-y-1">
+                              {analysisResults[cv.id].strengths.map((strength, index) => (
+                                <li key={index} className="text-green-600">• {strength}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <h6 className="font-medium text-orange-700 mb-2">🎯 Improvements</h6>
+                            <ul className="text-sm space-y-1">
+                              {analysisResults[cv.id].improvements.map((improvement, index) => (
+                                <li key={index} className="text-orange-600">• {improvement}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+
+                        {analysisResults[cv.id].missingKeywords.length > 0 && (
+                          <div className="mt-4">
+                            <h6 className="font-medium text-blue-700 mb-2">🔑 Missing Keywords</h6>
+                            <div className="flex flex-wrap gap-2">
+                              {analysisResults[cv.id].missingKeywords.map((keyword, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {keyword}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
-                    <Button size="sm" variant="outline" onClick={() => analyzeCV(cv.id)}>
-                      <Eye className="mr-1" size={14} />
-                      Analyze
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <Edit className="mr-1" size={14} />
-                      Edit
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <Download className="mr-1" size={14} />
-                      Download
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => deleteCV(cv.id)}
-                    >
-                      <Trash2 size={14} />
-                    </Button>
-                  </div>
-                </div>
-                
-                {cv.suggestions && cv.suggestions.length > 0 && (
-                  <div className="mt-3 p-3 bg-yellow-50 rounded-lg">
-                    <h5 className="font-medium text-sm text-yellow-900 mb-1">
-                      Improvement Suggestions:
-                    </h5>
-                    <ul className="space-y-1">
-                      {cv.suggestions.map((suggestion, index) => (
-                        <li key={index} className="text-sm text-yellow-800 flex items-start gap-1">
-                          <span>•</span>
-                          <span>{suggestion}</span>
-                        </li>
-                      ))}
-                    </ul>
+
+                    {cv.suggestions && cv.suggestions.length > 0 && !analysisResults[cv.id] && (
+                      <div className="mt-3 p-3 bg-yellow-50 rounded-lg">
+                        <h5 className="font-medium text-sm text-yellow-900 mb-1">
+                          {t.applicationMaterials.cv.suggestions}:
+                        </h5>
+                        <ul className="space-y-1">
+                          {cv.suggestions.map((suggestion, index) => (
+                            <li key={index} className="text-sm text-yellow-800 flex items-start gap-1">
+                              <span>•</span>
+                              <span>{suggestion}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -225,7 +640,7 @@ export default function CVPage() {
             
             {cvList.length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                No CVs uploaded yet. Upload your first CV to get started.
+                {t.applicationMaterials.cv.noCV}
               </div>
             )}
           </div>
@@ -235,21 +650,21 @@ export default function CVPage() {
       {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+          <CardTitle>{t.applicationMaterials.cv.quickActions}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
-            <Button variant="outline" className="justify-start">
+            <Button variant="outline" className="justify-start" onClick={createFromTemplate}>
               <FileText className="mr-2" size={16} />
-              Create New CV from Template
+              {t.applicationMaterials.cv.createFromTemplate}
             </Button>
-            <Button variant="outline" className="justify-start">
+            <Button variant="outline" className="justify-start" onClick={importFromLinkedIn}>
               <Upload className="mr-2" size={16} />
-              Import from LinkedIn
+              {t.applicationMaterials.cv.importLinkedIn}
             </Button>
-            <Button variant="outline" className="justify-start">
+            <Button variant="outline" className="justify-start" onClick={exportAllCVs}>
               <Download className="mr-2" size={16} />
-              Export All CVs
+              {t.applicationMaterials.cv.exportAll}
             </Button>
           </div>
         </CardContent>
