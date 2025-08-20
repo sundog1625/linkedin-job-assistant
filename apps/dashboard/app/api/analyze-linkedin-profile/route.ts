@@ -323,12 +323,140 @@ function analyzeRecommendations(recommendations?: any[]): Partial<SectionAnalysi
   }
 }
 
+async function analyzeProfileWithAI(profileText?: string, profileUrl?: string): Promise<any> {
+  const apiKey = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY
+
+  if (!apiKey) {
+    throw new Error('AI API key not available')
+  }
+
+  const analysisPrompt = `
+Analyze this LinkedIn profile content and extract specific information about each section. 
+
+${profileUrl ? `Profile URL: ${profileUrl}` : ''}
+${profileText ? `Profile Content:\n${profileText}` : ''}
+
+Please analyze and return ONLY a JSON object with this exact structure:
+{
+  "photo": true/false (if profile mentions having a photo),
+  "banner": "custom"/"default" (if banner is mentioned),
+  "headline": "extracted headline text" or null,
+  "openToWork": true/false (if mentions open to work/hiring),
+  "about": "extracted about/summary section" or null,
+  "experience": [{"company": "name", "role": "title", "description": "details"}] or [],
+  "skills": ["skill1", "skill2", ...] or [],
+  "customUrl": true/false (if URL looks custom like linkedin.com/in/firstname-lastname),
+  "education": [{"school": "name", "degree": "type"}] or [],
+  "featured": [] (array of featured content),
+  "certifications": [] (array of certifications),
+  "recommendations": [] (array of recommendations)
+}
+
+Focus on extracting real data from the profile content. If a section is not mentioned or found, use null or empty array.
+`
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 1500,
+      messages: [
+        {
+          role: 'user',
+          content: analysisPrompt
+        }
+      ]
+    })
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error(`AI API request failed: ${response.status}`, errorText)
+    throw new Error(`AI analysis failed: ${response.status}`)
+  }
+
+  const result = await response.json()
+  const analysisText = result.content[0].text
+
+  // Try to parse JSON from the response
+  try {
+    const jsonMatch = analysisText.match(/\{[\s\S]*\}/)
+    const jsonText = jsonMatch ? jsonMatch[0] : analysisText
+    return JSON.parse(jsonText)
+  } catch (parseError) {
+    console.error('Failed to parse AI response:', parseError)
+    throw new Error('AI response parsing failed')
+  }
+}
+
+function parseProfileBasic(profileText: string, profileUrl: string): any {
+  const sections: any = {}
+  
+  // Basic text parsing as fallback
+  sections.photo = profileText.toLowerCase().includes('photo') || profileText.toLowerCase().includes('picture')
+  sections.banner = profileText.toLowerCase().includes('banner') ? 'custom' : 'default'
+  
+  // Extract headline
+  const headlineMatch = profileText.match(/headline[:\s]*([^\n]{10,200})/i) || 
+                       profileText.match(/^([^\n]{20,200})/m)
+  sections.headline = headlineMatch ? headlineMatch[1].trim() : null
+  
+  // Extract about section
+  const aboutMatch = profileText.match(/about[:\s]*([^\n]{50,})/i) ||
+                    profileText.match(/summary[:\s]*([^\n]{50,})/i)
+  sections.about = aboutMatch ? aboutMatch[1].trim() : null
+  
+  // Extract skills
+  const skillsMatch = profileText.match(/skills?[:\s]*([^\n]+)/i)
+  sections.skills = skillsMatch ? skillsMatch[1].split(',').map(s => s.trim()) : []
+  
+  // Check URL format
+  sections.customUrl = profileUrl.includes('linkedin.com/in/') && 
+                      !profileUrl.match(/linkedin\.com\/in\/[^\/]+\-[0-9a-f]{8,}/)
+  
+  sections.openToWork = profileText.toLowerCase().includes('open to work') || 
+                       profileText.toLowerCase().includes('hiring')
+  
+  sections.experience = profileText.toLowerCase().includes('experience') ? 
+    [{ company: 'Unknown', role: 'Unknown', description: 'Experience mentioned' }] : []
+  
+  sections.education = profileText.toLowerCase().includes('education') || 
+                      profileText.toLowerCase().includes('university') || 
+                      profileText.toLowerCase().includes('college') ? 
+    [{ school: 'Unknown', degree: 'Unknown' }] : []
+  
+  sections.featured = []
+  sections.certifications = []
+  sections.recommendations = []
+  
+  return sections
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body: ProfileData = await request.json()
     
-    // Extract profile data (in production, this would parse LinkedIn HTML or use LinkedIn API)
-    const profileSections = body.sections || {}
+    console.log('🔍 Analyzing LinkedIn profile...')
+    console.log('Profile URL:', body.profileUrl)
+    console.log('Profile Text length:', body.profileText?.length || 0)
+    
+    // Use AI to analyze the actual profile content
+    let profileSections = body.sections || {}
+    
+    // If we have profile text or URL, analyze it with AI
+    if (body.profileText || body.profileUrl) {
+      try {
+        profileSections = await analyzeProfileWithAI(body.profileText, body.profileUrl)
+      } catch (aiError) {
+        console.error('AI analysis failed, using basic parsing:', aiError)
+        profileSections = parseProfileBasic(body.profileText || '', body.profileUrl || '')
+      }
+    }
     
     // Analyze each section
     const sections: SectionAnalysis[] = [

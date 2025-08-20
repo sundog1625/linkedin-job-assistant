@@ -94,18 +94,14 @@ export default function LinkedInProfilePage() {
     setIsAnalyzing(true)
     
     try {
-      // Parse profile data or extract from URL
-      const profileSections = parseProfileInput(profileUrl, profileData)
-      
       const response = await fetch('/api/analyze-linkedin-profile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          profileUrl: profileUrl || undefined,
-          profileText: profileData || undefined,
-          sections: profileSections
+          profileUrl: profileUrl.trim() || undefined,
+          profileText: profileData.trim() || undefined
         })
       })
 
@@ -141,130 +137,46 @@ export default function LinkedInProfilePage() {
     }
   }
 
-  // Simple profile data parser for demo purposes
+  // Note: Profile parsing is now handled by AI in the backend
   const parseProfileInput = (url: string, data: string) => {
-    const sections: any = {}
-    
-    // Basic parsing logic - in production, this would be more sophisticated
-    if (data.toLowerCase().includes('photo') || data.toLowerCase().includes('picture')) {
-      sections.photo = true
-    }
-    
-    if (data.toLowerCase().includes('banner') || data.toLowerCase().includes('background')) {
-      sections.banner = 'custom'
-    }
-    
-    // Look for headline patterns
-    const headlineMatch = data.match(/headline[:\s]*([^\n]{10,200})/i)
-    if (headlineMatch) {
-      sections.headline = headlineMatch[1].trim()
-    }
-    
-    // Look for about section
-    const aboutMatch = data.match(/about[:\s]*([^\n]{50,})/i)
-    if (aboutMatch) {
-      sections.about = aboutMatch[1].trim()
-    }
-    
-    // Look for experience
-    if (data.toLowerCase().includes('experience') || data.toLowerCase().includes('work')) {
-      sections.experience = [{ description: 'Sample experience' }]
-    }
-    
-    // Look for skills
-    const skillsMatch = data.match(/skills?[:\s]*([^\n]+)/i)
-    if (skillsMatch) {
-      sections.skills = skillsMatch[1].split(',').map(s => s.trim())
-    }
-    
-    // Check for custom URL
-    if (url.includes('linkedin.com/in/') && !url.includes('linkedin.com/in/') && url.match(/linkedin\.com\/in\/[a-zA-Z-]+$/)) {
-      sections.customUrl = true
-    }
-    
-    // Demo data for immediate testing
-    if (!data && !url) {
-      sections.photo = true
-      sections.headline = 'Senior Software Engineer | Full Stack Developer | React Expert'
-      sections.about = 'Experienced software engineer with 5+ years of experience building scalable web applications. Passionate about creating efficient solutions that drive business growth.'
-      sections.experience = [
-        { description: 'Led development of multiple React applications, increasing user engagement by 40%' },
-        { description: 'Implemented microservices architecture improving system performance by 50%' }
-      ]
-      sections.skills = ['React', 'Node.js', 'TypeScript', 'AWS', 'Python']
-      sections.openToWork = false
-      sections.customUrl = false
-      sections.education = []
-      sections.featured = []
-      sections.certifications = []
-      sections.recommendations = []
-    }
-    
-    return sections
+    // This function is no longer used since AI handles parsing on the backend
+    // Keeping it for backwards compatibility, but it returns empty object
+    return {}
   }
 
   const runDemoAnalysis = async () => {
     setIsAnalyzing(true)
     setProfileUrl('https://linkedin.com/in/demo-profile')
+    setProfileData(`Senior Software Engineer | Full Stack Developer | React Expert
+
+I'm a passionate software engineer with 5+ years of experience building scalable web applications. Currently working at Tech Corp where I lead a team of 5 developers.
+
+EXPERIENCE:
+- Senior Software Engineer at Tech Corp (2022-Present)
+- Software Engineer at StartupXYZ (2020-2022)
+
+SKILLS:
+React, TypeScript, Node.js, Python, AWS, Docker, MongoDB, PostgreSQL
+
+EDUCATION:
+B.S. Computer Science, University of Technology (2020)
+
+I'm always open to connecting with fellow developers and discussing new opportunities in full-stack development.`)
     
-    // Simulate API call
+    // Use real analysis instead of mock data
     setTimeout(async () => {
       try {
         await analyzeProfile()
       } catch (error) {
-        // Demo analysis with mock data
-        const mockSections: ProfileSection[] = [
-          {
-            id: 'photo',
-            name: 'Profile Photo',
-            status: 'completed',
-            score: 5,
-            maxScore: 5,
-            percentage: 100,
-            currentContent: 'Professional headshot uploaded',
-            suggestions: [],
-            aiRecommendation: 'Your profile photo looks professional and appropriate.'
-          },
-          {
-            id: 'headline',
-            name: 'Headline',
-            status: 'completed',
-            score: 9,
-            maxScore: 10,
-            percentage: 90,
-            currentContent: 'Senior Software Engineer | Full Stack Developer | React Expert',
-            suggestions: ['Add more specific technologies'],
-            aiRecommendation: 'Great headline! Consider adding specific frameworks you specialize in.'
-          },
-          {
-            id: 'about',
-            name: 'About',
-            status: 'suggestion',
-            score: 8,
-            maxScore: 15,
-            percentage: 53,
-            currentContent: '120 words, 2 paragraphs',
-            suggestions: [
-              'Expand to 3-4 paragraphs',
-              'Add quantifiable achievements',
-              'Include a call-to-action'
-            ],
-            aiRecommendation: 'Your About section is decent but could be expanded with more specific achievements and metrics.'
-          }
-        ]
-        
-        setProfileSections(mockSections)
-        setTotalScore(75)
-        setOverallRecommendation('Good profile! You\'re well-positioned for opportunities. Focus on the remaining gaps to reach elite status.')
-        setTopPriorities([
-          'About: Expand to 3-4 paragraphs with more achievements',
-          'Skills: Add more relevant skills (aim for 30-50)',
-          'Recommendations: Request 2-3 recommendations from colleagues'
-        ])
-        setHasAnalyzed(true)
+        console.error('Demo analysis failed:', error)
+        toast({
+          title: 'Demo analysis failed',
+          description: 'Please try entering your profile data manually',
+          variant: 'destructive'
+        })
       }
       setIsAnalyzing(false)
-    }, 2000)
+    }, 1000)
   }
 
   return (
