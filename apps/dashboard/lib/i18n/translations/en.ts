@@ -25,7 +25,11 @@ export const en = {
     jobs: 'Job Tracker',
     resume: 'Resume Builder',
     profile: 'Profile Settings',
-    aiTools: 'AI Tools'
+    aiTools: 'AI Tools',
+    applicationMaterials: 'Application Materials',
+    cv: 'CV',
+    coverLetters: 'Cover Letters',
+    linkedinProfile: 'LinkedIn Profile'
   },
   dashboard: {
     title: 'AI-Powered LinkedIn Job Assistant',
@@ -305,5 +309,66 @@ export const en = {
   language: {
     title: 'Language',
     select: 'Select Language'
+  },
+  applicationMaterials: {
+    title: 'Application Materials',
+    subtitle: 'Manage all your job application materials in one place',
+    cv: {
+      title: 'CV/Resume Management',
+      subtitle: 'Store, manage, and optimize your CV/Resume documents',
+      upload: 'Upload CV/Resume',
+      uploadDesc: 'Upload your CV in PDF, DOC, or DOCX format for analysis and optimization',
+      library: 'Your CV Library',
+      libraryDesc: 'Manage your CV versions and targeted resumes',
+      atsScore: 'ATS Score',
+      analyze: 'Analyze',
+      edit: 'Edit',
+      download: 'Download',
+      delete: 'Delete',
+      suggestions: 'Improvement Suggestions',
+      quickActions: 'Quick Actions',
+      createFromTemplate: 'Create New CV from Template',
+      importLinkedIn: 'Import from LinkedIn',
+      exportAll: 'Export All CVs',
+      noCV: 'No CVs uploaded yet. Upload your first CV to get started.'
+    },
+    coverLetters: {
+      title: 'Cover Letters',
+      subtitle: 'Generate targeted cover letters for your job applications',
+      selectJob: 'Select Target Job',
+      selectJobDesc: 'Choose a job from your tracker to generate a targeted cover letter',
+      additionalReq: 'Additional Requirements (Optional)',
+      generate: 'Generate Cover Letter',
+      generating: 'Generating...',
+      generated: 'Generated Cover Letter',
+      generatedDesc: 'AI-generated cover letter tailored for your selected position',
+      copyClipboard: 'Copy to Clipboard',
+      saveTemplate: 'Save as Template',
+      saved: 'Saved Cover Letters',
+      savedDesc: 'Your previously generated cover letters',
+      view: 'View',
+      created: 'Created'
+    },
+    linkedinProfile: {
+      title: 'LinkedIn Profile Analyzer',
+      subtitle: 'Optimize your LinkedIn profile to attract more opportunities',
+      analyzeProfile: 'Analyze Your Profile',
+      analyzeDesc: 'Enter your LinkedIn profile URL or upload your profile data',
+      analyzing: 'Analyzing...',
+      uploadData: 'Upload Profile Data',
+      profileScore: 'Profile Score',
+      scoreDesc: 'Your LinkedIn profile optimization score',
+      excellent: 'Excellent! Your profile is well-optimized.',
+      good: 'Good progress! A few improvements will make your profile stand out.',
+      needsWork: 'Your profile needs attention. Follow the suggestions below to improve.',
+      currentStatus: 'Current Status:',
+      suggestions: 'Suggestions:',
+      aiRecommendation: 'AI Recommendation:',
+      applyAI: 'Apply AI Suggestions',
+      optimized: 'Optimized',
+      canImprove: 'Can Improve',
+      needsAttention: 'Needs Attention',
+      points: 'points'
+    }
   }
 }

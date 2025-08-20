@@ -25,7 +25,11 @@ export const zh = {
     jobs: '职位追踪',
     resume: '简历生成器',
     profile: '个人设置',
-    aiTools: 'AI工具'
+    aiTools: 'AI工具',
+    applicationMaterials: '申请材料',
+    cv: '简历',
+    coverLetters: '求职信',
+    linkedinProfile: 'LinkedIn主页'
   },
   dashboard: {
     title: 'AI驱动的LinkedIn求职助手',
@@ -305,5 +309,66 @@ export const zh = {
   language: {
     title: '语言',
     select: '选择语言'
+  },
+  applicationMaterials: {
+    title: '申请材料',
+    subtitle: '在一个地方管理所有的求职申请材料',
+    cv: {
+      title: '简历管理',
+      subtitle: '存储、管理和优化您的简历文档',
+      upload: '上传简历',
+      uploadDesc: '上传PDF、DOC或DOCX格式的简历进行分析和优化',
+      library: '您的简历库',
+      libraryDesc: '管理您的简历版本和针对性简历',
+      atsScore: 'ATS评分',
+      analyze: '分析',
+      edit: '编辑',
+      download: '下载',
+      delete: '删除',
+      suggestions: '改进建议',
+      quickActions: '快速操作',
+      createFromTemplate: '从模板创建新简历',
+      importLinkedIn: '从LinkedIn导入',
+      exportAll: '导出所有简历',
+      noCV: '还没有上传简历。上传您的第一份简历开始使用。'
+    },
+    coverLetters: {
+      title: '求职信',
+      subtitle: '为您的职位申请生成针对性求职信',
+      selectJob: '选择目标职位',
+      selectJobDesc: '从您的职位追踪器中选择一个职位来生成针对性求职信',
+      additionalReq: '额外要求（可选）',
+      generate: '生成求职信',
+      generating: '生成中...',
+      generated: '生成的求职信',
+      generatedDesc: 'AI为您选择的职位量身定制的求职信',
+      copyClipboard: '复制到剪贴板',
+      saveTemplate: '保存为模板',
+      saved: '已保存的求职信',
+      savedDesc: '您之前生成的求职信',
+      view: '查看',
+      created: '创建时间'
+    },
+    linkedinProfile: {
+      title: 'LinkedIn主页分析器',
+      subtitle: '优化您的LinkedIn主页以吸引更多机会',
+      analyzeProfile: '分析您的主页',
+      analyzeDesc: '输入您的LinkedIn主页URL或上传主页数据',
+      analyzing: '分析中...',
+      uploadData: '上传主页数据',
+      profileScore: '主页评分',
+      scoreDesc: '您的LinkedIn主页优化得分',
+      excellent: '优秀！您的主页已经很好地优化了。',
+      good: '进展良好！一些改进将使您的主页更加突出。',
+      needsWork: '您的主页需要关注。按照下面的建议进行改进。',
+      currentStatus: '当前状态：',
+      suggestions: '建议：',
+      aiRecommendation: 'AI建议：',
+      applyAI: '应用AI建议',
+      optimized: '已优化',
+      canImprove: '可改进',
+      needsAttention: '需要关注',
+      points: '分'
+    }
   }
 }
