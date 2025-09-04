@@ -51,37 +51,37 @@ export function Sidebar() {
 
   const sidebarItems: SidebarItem[] = [
     {
-      href: '/dashboard',
+      href: '/dashboard/dashboard',
       icon: LayoutDashboard,
       label: t.navigation.dashboard,
     },
     {
-      href: '/jobs',
+      href: '/dashboard/jobs',
       icon: Briefcase,
       label: t.navigation.jobs,
     },
     {
-      href: '/resume',
+      href: '/dashboard/resume',
       icon: FileText,
       label: t.navigation.resume,
     },
     {
-      href: '/application-materials',
+      href: '/dashboard/application-materials',
       icon: FolderOpen,
       label: t.navigation.applicationMaterials,
       subItems: [
-        { href: '/application-materials/cv', label: t.navigation.cv },
-        { href: '/application-materials/cover-letters', label: t.navigation.coverLetters },
-        { href: '/application-materials/linkedin-profile', label: t.navigation.linkedinProfile },
+        { href: '/dashboard/application-materials/cv', label: t.navigation.cv },
+        { href: '/dashboard/application-materials/cover-letters', label: t.navigation.coverLetters },
+        { href: '/dashboard/application-materials/linkedin-profile', label: t.navigation.linkedinProfile },
       ]
     },
     {
-      href: '/profile',
+      href: '/dashboard/profile',
       icon: User,
       label: t.navigation.profile,
     },
     {
-      href: '/ai-tools',
+      href: '/dashboard/ai-tools',
       icon: Zap,
       label: t.navigation.aiTools,
     },
