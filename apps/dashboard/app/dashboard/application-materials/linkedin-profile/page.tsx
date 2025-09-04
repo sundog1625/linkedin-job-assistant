@@ -46,6 +46,9 @@ export default function LinkedInProfilePage() {
   const [overallRecommendation, setOverallRecommendation] = useState('')
   const [topPriorities, setTopPriorities] = useState<string[]>([])
   const [hasAnalyzed, setHasAnalyzed] = useState(false)
+  const [improvingSection, setImprovingSection] = useState<string | null>(null)
+  const [sectionImprovements, setSectionImprovements] = useState<{[key: string]: any}>({})
+  const [analysisMode, setAnalysisMode] = useState<'fast' | 'deep'>('fast')
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev =>
@@ -101,7 +104,8 @@ export default function LinkedInProfilePage() {
         },
         body: JSON.stringify({
           profileUrl: profileUrl.trim() || undefined,
-          profileText: profileData.trim() || undefined
+          profileText: profileData.trim() || undefined,
+          analysisMode: analysisMode
         })
       })
 
@@ -179,6 +183,62 @@ I'm always open to connecting with fellow developers and discussing new opportun
     }, 1000)
   }
 
+  const improveSection = async (section: ProfileSection) => {
+    setImprovingSection(section.id)
+    
+    try {
+      const response = await fetch('/api/improve-linkedin-section', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sectionId: section.id,
+          sectionName: section.name,
+          currentContent: section.currentContent,
+          currentScore: section.score,
+          maxScore: section.maxScore,
+          profileContext: {
+            headline: profileSections.find(s => s.id === 'headline')?.currentContent,
+            about: profileSections.find(s => s.id === 'about')?.currentContent,
+            experience: profileSections.find(s => s.id === 'experience')?.currentContent,
+            skills: profileSections.find(s => s.id === 'skills')?.currentContent,
+            profileUrl: profileUrl
+          }
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate improvement')
+      }
+
+      const result = await response.json()
+      
+      if (result.success) {
+        setSectionImprovements(prev => ({
+          ...prev,
+          [section.id]: result.improvement
+        }))
+        
+        toast({
+          title: 'AI improvement generated!',
+          description: `Improvement suggestions for ${section.name} are ready`
+        })
+      } else {
+        throw new Error(result.error || 'Failed to generate improvement')
+      }
+    } catch (error) {
+      console.error('Section improvement failed:', error)
+      toast({
+        title: 'Improvement generation failed',
+        description: error instanceof Error ? error.message : 'Please try again',
+        variant: 'destructive'
+      })
+    } finally {
+      setImprovingSection(null)
+    }
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -200,10 +260,10 @@ I'm always open to connecting with fellow developers and discussing new opportun
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">
-                LinkedIn Profile URL
+                {t.applicationMaterials.linkedinProfile.profileUrl}
               </label>
               <Textarea
-                placeholder="https://linkedin.com/in/your-profile"
+                placeholder={t.applicationMaterials.linkedinProfile.profileUrlPlaceholder}
                 value={profileUrl}
                 onChange={(e) => setProfileUrl(e.target.value)}
                 className="min-h-[60px]"
@@ -212,10 +272,10 @@ I'm always open to connecting with fellow developers and discussing new opportun
             
             <div>
               <label className="block text-sm font-medium mb-2">
-                Or paste your profile data
+                {t.applicationMaterials.linkedinProfile.orPasteData}
               </label>
               <Textarea
-                placeholder="Paste your LinkedIn profile text here (about section, headline, experience, etc.)"
+                placeholder={t.applicationMaterials.linkedinProfile.pasteDataPlaceholder}
                 value={profileData}
                 onChange={(e) => setProfileData(e.target.value)}
                 className="min-h-[120px]"
@@ -232,13 +292,13 @@ I'm always open to connecting with fellow developers and discussing new opportun
                 ) : (
                   <>
                     <Sparkles className="mr-2" size={16} />
-                    Analyze Profile
+                    {t.applicationMaterials.linkedinProfile.analyzeBtn}
                   </>
                 )}
               </Button>
               <Button variant="outline" onClick={runDemoAnalysis} disabled={isAnalyzing}>
                 <TrendingUp className="mr-2" size={16} />
-                Try Demo Analysis
+                {t.applicationMaterials.linkedinProfile.tryDemo}
               </Button>
               <Button variant="outline">
                 <Upload className="mr-2" size={16} />
@@ -284,7 +344,7 @@ I'm always open to connecting with fellow developers and discussing new opportun
               
               {topPriorities.length > 0 && (
                 <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                  <h4 className="font-medium text-blue-900 mb-2">🎯 Top Priorities:</h4>
+                  <h4 className="font-medium text-blue-900 mb-2">{t.applicationMaterials.linkedinProfile.topPriorities}</h4>
                   <ul className="space-y-1">
                     {topPriorities.map((priority, index) => (
                       <li key={index} className="text-sm text-blue-700 flex items-start gap-2">
@@ -303,7 +363,7 @@ I'm always open to connecting with fellow developers and discussing new opportun
       {/* Profile Sections */}
       {profileSections.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold">Detailed Analysis</h2>
+          <h2 className="text-2xl font-bold">{t.applicationMaterials.linkedinProfile.detailedAnalysis}</h2>
           {profileSections.map((section) => {
             const isExpanded = expandedSections.includes(section.id)
             
@@ -373,9 +433,96 @@ I'm always open to connecting with fellow developers and discussing new opportun
                       </div>
                     </div>
                     
-                    <Button variant="outline" size="sm">
-                      {t.applicationMaterials.linkedinProfile.applyAI}
-                    </Button>
+                    {/* AI Improvement Section */}
+                    {sectionImprovements[section.id] && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="text-green-600" size={16} />
+                          <h4 className="font-medium text-green-900">{t.applicationMaterials.linkedinProfile.improvementSuggestions}</h4>
+                        </div>
+                        
+                        {sectionImprovements[section.id].improvements?.length > 0 && (
+                          <div>
+                            <h5 className="font-medium text-green-800 mb-2">{t.applicationMaterials.linkedinProfile.specificImprovements}</h5>
+                            <ul className="space-y-1">
+                              {sectionImprovements[section.id].improvements.map((improvement: string, index: number) => (
+                                <li key={index} className="text-sm text-green-700 flex items-start gap-2">
+                                  <span className="text-green-500 mt-1">•</span>
+                                  <span>{improvement}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {sectionImprovements[section.id].recommendedContent && (
+                          <div>
+                            <h5 className="font-medium text-green-800 mb-2">{t.applicationMaterials.linkedinProfile.recommendedContent}</h5>
+                            <div className="text-sm text-green-700 bg-green-100 p-3 rounded border-l-4 border-green-400">
+                              <pre className="whitespace-pre-wrap font-sans">{sectionImprovements[section.id].recommendedContent}</pre>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {sectionImprovements[section.id].keywords?.length > 0 && (
+                          <div>
+                            <h5 className="font-medium text-green-800 mb-2">{t.applicationMaterials.linkedinProfile.keywordSuggestions}</h5>
+                            <div className="flex flex-wrap gap-2">
+                              {sectionImprovements[section.id].keywords.map((keyword: string, index: number) => (
+                                <span key={index} className="px-2 py-1 bg-green-200 text-green-800 rounded-full text-xs">
+                                  {keyword}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {sectionImprovements[section.id].impact && (
+                          <div>
+                            <h5 className="font-medium text-green-800 mb-2">{t.applicationMaterials.linkedinProfile.whyImportant}</h5>
+                            <p className="text-sm text-green-700">{sectionImprovements[section.id].impact}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => improveSection(section)}
+                        disabled={improvingSection === section.id}
+                      >
+                        {improvingSection === section.id ? (
+                          <>
+                            <Sparkles className="animate-spin mr-2" size={14} />
+                            {t.applicationMaterials.linkedinProfile.generating}
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="mr-2" size={14} />
+                            {t.applicationMaterials.linkedinProfile.aiImprovement}
+                          </>
+                        )}
+                      </Button>
+                      
+                      {sectionImprovements[section.id] && (
+                        <Button 
+                          variant="default" 
+                          size="sm"
+                          onClick={() => {
+                            // Copy improvement to clipboard
+                            navigator.clipboard.writeText(sectionImprovements[section.id].recommendedContent || sectionImprovements[section.id].fullResponse)
+                            toast({
+                              title: t.applicationMaterials.linkedinProfile.copiedToClipboard,
+                              description: t.applicationMaterials.linkedinProfile.copiedDescription
+                            })
+                          }}
+                        >
+                          {t.applicationMaterials.linkedinProfile.copySuggestion}
+                        </Button>
+                      )}
+                    </div>
                   </CardContent>
                 )}
               </Card>

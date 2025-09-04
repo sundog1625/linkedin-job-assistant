@@ -14,22 +14,11 @@ export async function GET(request: NextRequest) {
     console.log('User Profile - Key exists:', !!supabaseKey)
     
     if (!supabaseUrl || !supabaseKey) {
-      console.log('Supabase未配置，返回默认档案')
+      console.log('Supabase未配置，无法获取用户档案')
       return NextResponse.json({
-        success: true,
-        profile: {
-          name: '演示用户',
-          email: 'demo@example.com',
-          phone: '+86 138 0000 0000',
-          location: '北京',
-          skills: ['JavaScript', 'React', 'Node.js', 'Python'],
-          experience: '拥有3年软件开发经验，熟悉前端和后端开发。',
-          education: '计算机科学学士学位',
-          preferredRoles: ['前端工程师', '全栈工程师'],
-          languages: ['中文（母语）', '英语（流利）'],
-          linkedin: 'https://linkedin.com/in/demo-user',
-          website: 'https://demo-user.dev'
-        }
+        success: false,
+        message: '数据库未配置，请先配置数据库连接',
+        needsSetup: true
       })
     }
     
@@ -49,22 +38,12 @@ export async function GET(request: NextRequest) {
     }
     
     if (!profile) {
-      // 如果没有找到档案，返回默认档案
+      // 如果没有找到用户档案，返回需要设置的状态
+      console.log('未找到用户档案，需要用户设置简历')
       return NextResponse.json({
-        success: true,
-        profile: {
-          name: '演示用户',
-          email: 'demo@example.com',
-          phone: '+86 138 0000 0000',
-          location: '北京',
-          skills: ['JavaScript', 'React', 'Node.js', 'Python'],
-          experience: '拥有3年软件开发经验，熟悉前端和后端开发。',
-          education: '计算机科学学士学位',
-          preferredRoles: ['前端工程师', '全栈工程师'],
-          languages: ['中文（母语）', '英语（流利）'],
-          linkedin: 'https://linkedin.com/in/demo-user',
-          website: 'https://demo-user.dev'
-        }
+        success: false,
+        message: '未找到用户简历信息，请先在Dashboard中设置您的简历',
+        needsSetup: true
       })
     }
     
@@ -91,22 +70,12 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('获取用户档案失败:', error)
     
-    // 发生错误时也返回默认档案，确保功能可用
+    // 发生错误时返回失败状态
     return NextResponse.json({
-      success: true,
-      profile: {
-        name: '演示用户',
-        email: 'demo@example.com',
-        phone: '+86 138 0000 0000',
-        location: '北京',
-        skills: ['JavaScript', 'React', 'Node.js', 'Python'],
-        experience: '拥有3年软件开发经验，熟悉前端和后端开发。',
-        education: '计算机科学学士学位',
-        preferredRoles: ['前端工程师', '全栈工程师'],
-        languages: ['中文（母语）', '英语（流利）'],
-        linkedin: 'https://linkedin.com/in/demo-user',
-        website: 'https://demo-user.dev'
-      }
+      success: false,
+      message: '获取用户档案时发生错误，请稍后重试',
+      error: error.message,
+      needsSetup: true
     })
   }
 }

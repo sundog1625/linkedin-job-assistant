@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 300px;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .logo {
+      font-size: 24px;
+    }
+    
+    .language-btn {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 36px;
+      text-align: center;
+    }
+    
+    .language-btn:hover {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+    
+    .language-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 4px rgba(59, 130, 246, 0.3);
+    }
+    
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+    
+    .subtitle {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    
+    .status {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    
+    .status.active {
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    
+    .status.inactive {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    
+    .features {
+      margin-bottom: 16px;
+    }
+    
+    .feature {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 12px;
+      color: #4b5563;
+    }
+    
+    .feature-icon {
+      margin-right: 8px;
+      font-size: 14px;
+    }
+    
+    .instructions {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.4;
+      text-align: center;
+    }
+    
+    .link {
+      color: #0077b5;
+      text-decoration: none;
+    }
+    
+    .link:hover {
+      text-decoration: underline;
+    }
+    
+    .ai-status {
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+    }
+    
+    .status-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #166534;
+      margin-bottom: 4px;
+    }
+    
+    .status-desc {
+      font-size: 11px;
+      color: #15803d;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">📊</div>
+      <button class="language-btn" id="languageBtn">🌐 EN</button>
+    </div>
+    <div class="title" id="title">LinkedIn Profile Analyzer</div>
+    <div class="subtitle" id="subtitle">实时分析LinkedIn个人主页</div>
+  </div>
+  
+  <div class="status" id="status">
+    <div id="statusText">检测中...</div>
+  </div>
+  
+  <div class="features">
+    <div class="feature">
+      <span class="feature-icon">⚡</span>
+      <span id="feature1">实时分析profile完整度</span>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">📊</span>
+      <span id="feature2">专业评分和改进建议</span>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">🎯</span>
+      <span id="feature3">直接在页面上显示结果</span>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">🔄</span>
+      <span id="feature4">支持实时刷新分析</span>
+    </div>
+  </div>
+  
+  <div class="ai-status" id="aiStatus">
+    <div class="status-title" id="aiTitle">AI分析功能</div>
+    <div class="status-desc" id="aiStatusText">⏳ 检测AI服务状态中...</div>
+  </div>
+  
+  <div class="instructions" id="instructions">
+    前往 <a href="https://linkedin.com/in/" class="link" target="_blank">LinkedIn个人主页</a> 
+    查看实时分析结果
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

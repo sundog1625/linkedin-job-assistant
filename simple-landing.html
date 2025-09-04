@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Profile Analyzer - Get Your Profile Score in 30 Seconds</title>
+    <meta name="description" content="Free AI-powered LinkedIn profile analysis. Get instant feedback and improvement tips. Used by 1000+ professionals.">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="LinkedIn Profile Analyzer - Get Your Profile Score in 30 Seconds">
+    <meta property="og:description" content="Free AI-powered LinkedIn profile analysis. Get instant feedback and improvement tips.">
+    <meta property="og:type" content="website">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #0077b5 0%, #00a0dc 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .hero .subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .cta-button {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .cta-button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .cta-secondary {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+        
+        .cta-secondary:hover {
+            background: white;
+            color: #0077b5;
+        }
+        
+        /* Social Proof */
+        .social-proof {
+            padding: 40px 0;
+            background: #f8f9fa;
+            text-align: center;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+        
+        .stat {
+            margin: 10px;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #0077b5;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Features */
+        .features {
+            padding: 60px 0;
+        }
+        
+        .features h2 {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 2.5rem;
+            color: #333;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .feature {
+            text-align: center;
+            padding: 30px 20px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .feature h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .feature p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* Pricing */
+        .pricing {
+            background: #f8f9fa;
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .pricing h2 {
+            margin-bottom: 50px;
+            font-size: 2.5rem;
+        }
+        
+        .pricing-cards {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .pricing-card {
+            background: white;
+            border-radius: 10px;
+            padding: 40px 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 350px;
+            position: relative;
+        }
+        
+        .pricing-card.popular {
+            border: 3px solid #28a745;
+            transform: scale(1.05);
+        }
+        
+        .popular-badge {
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #0077b5;
+            margin-bottom: 20px;
+        }
+        
+        .plan-price .currency {
+            font-size: 1.5rem;
+            vertical-align: top;
+        }
+        
+        .plan-price .period {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 400;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin: 20px 0;
+        }
+        
+        .plan-features li {
+            padding: 8px 0;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .plan-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        /* Footer CTA */
+        .footer-cta {
+            background: #0077b5;
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .footer-cta h2 {
+            margin-bottom: 20px;
+        }
+        
+        .footer-cta p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .stats {
+                flex-direction: column;
+            }
+            
+            .pricing-cards {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .pricing-card.popular {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Get Your LinkedIn Profile Score in 30 Seconds</h1>
+            <p class="subtitle">AI-powered analysis reveals what recruiters really see. Join 1,000+ professionals who boosted their careers.</p>
+            <a href="#" class="cta-button" onclick="startFreeAnalysis()">Analyze My Profile - FREE</a>
+            <a href="#pricing" class="cta-button cta-secondary">View Pricing</a>
+        </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section class="social-proof">
+        <div class="container">
+            <p style="font-size: 1.1rem; color: #666;">Trusted by professionals at</p>
+            <div style="margin: 20px 0; color: #0077b5; font-weight: 600;">
+                Google • Microsoft • Amazon • LinkedIn • Tesla
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">1,247</div>
+                    <div class="stat-label">Profiles Analyzed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">89%</div>
+                    <div class="stat-label">Score Improvement</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">30s</div>
+                    <div class="stat-label">Analysis Time</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">AI Available</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+        <div class="container">
+            <h2>What Makes Your LinkedIn Profile Stand Out?</h2>
+            
+            <div class="feature-grid">
+                <div class="feature">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Instant AI Analysis</h3>
+                    <p>Get your profile score and detailed feedback in 30 seconds. Our AI analyzes 20+ factors that recruiters care about.</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h3>Actionable Insights</h3>
+                    <p>Don't just get a score - get specific suggestions on headlines, summaries, skills, and photo optimization.</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Real-Time Updates</h3>
+                    <p>See your improvements instantly. Track your progress and compare with industry benchmarks.</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Global Standards</h3>
+                    <p>Optimized for international job markets. Support for 8+ languages and local hiring practices.</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Privacy First</h3>
+                    <p>Your data stays private. We analyze your public profile only - no login required for basic analysis.</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">📱</div>
+                    <h3>Works Everywhere</h3>
+                    <p>Chrome extension + web dashboard. Analyze profiles directly on LinkedIn or from anywhere.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <h2>Simple, Honest Pricing</h2>
+            
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <div class="plan-name">Starter</div>
+                    <div class="plan-price">
+                        <span class="currency">€</span>0
+                        <span class="period">/month</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>3 profile analyses per month</li>
+                        <li>Basic improvement suggestions</li>
+                        <li>Profile score breakdown</li>
+                        <li>Email support</li>
+                    </ul>
+                    <a href="#" class="cta-button" onclick="startFreeAnalysis()">Get Started Free</a>
+                </div>
+                
+                <div class="pricing-card popular">
+                    <div class="popular-badge">Most Popular</div>
+                    <div class="plan-name">Professional</div>
+                    <div class="plan-price">
+                        <span class="currency">€</span>9.99
+                        <span class="period">/month</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>Unlimited profile analyses</li>
+                        <li>Detailed AI-powered insights</li>
+                        <li>Industry keyword suggestions</li>
+                        <li>Competitor profile comparison</li>
+                        <li>Progress tracking & history</li>
+                        <li>Priority support</li>
+                        <li>PDF report export</li>
+                    </ul>
+                    <a href="#" class="cta-button" onclick="startTrial()">Start 7-Day Free Trial</a>
+                </div>
+            </div>
+            
+            <p style="margin-top: 30px; color: #666;">
+                💳 No credit card required for free trial • Cancel anytime • 30-day money-back guarantee
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer CTA -->
+    <section class="footer-cta">
+        <div class="container">
+            <h2>Ready to 10x Your LinkedIn Profile?</h2>
+            <p>Join 1,000+ professionals who already improved their career prospects</p>
+            <a href="#" class="cta-button" onclick="startFreeAnalysis()" style="background: white; color: #0077b5;">
+                Start Free Analysis Now
+            </a>
+        </div>
+    </section>
+
+    <script>
+        function startFreeAnalysis() {
+            // 这里跳转到你的工具
+            alert("Here you would redirect to the LinkedIn Profile Analyzer extension or dashboard!");
+            // window.location.href = "https://your-app-url.com";
+        }
+        
+        function startTrial() {
+            // 这里跳转到付费注册
+            alert("Here you would redirect to the signup/payment page!");
+            // window.location.href = "https://your-app-url.com/signup";
+        }
+        
+        // 简单的滚动动画
+        window.addEventListener('scroll', function() {
+            const elements = document.querySelectorAll('.feature, .stat');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }
+            });
+        });
+        
+        // 初始设置动画元素
+        document.addEventListener('DOMContentLoaded', function() {
+            const animatedElements = document.querySelectorAll('.feature, .stat');
+            animatedElements.forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            });
+        });
+    </script>
+</body>
+</html>

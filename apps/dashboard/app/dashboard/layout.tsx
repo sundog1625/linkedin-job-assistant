@@ -13,12 +13,17 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen flex" style={{
+      background: 'linear-gradient(135deg, #f0f4f7 0%, #e8f0f3 50%, #dce7ec 100%)',
+      backgroundAttachment: 'fixed'
+    }}>
       {/* Advanced Sidebar with Language Selector */}
       <Sidebar />
 
       {/* Main Content */}
-      <main className="flex-1 p-6 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto" style={{
+        background: 'transparent'
+      }}>
         {children}
       </main>
       

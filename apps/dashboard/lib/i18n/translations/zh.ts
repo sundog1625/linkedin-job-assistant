@@ -368,7 +368,31 @@ export const zh = {
       optimized: '已优化',
       canImprove: '可改进',
       needsAttention: '需要关注',
-      points: '分'
+      points: '分',
+      profileUrl: 'LinkedIn主页URL',
+      profileUrlPlaceholder: 'https://linkedin.com/in/your-profile',
+      orPasteData: '或粘贴您的主页完整内容（推荐）',
+      pasteDataPlaceholder: '请复制粘贴您完整的LinkedIn主页内容，包括：标题、关于、工作经验、技能、教育背景等。这样可以获得更准确的分析结果。',
+      analyzeBtn: '分析主页',
+      tryDemo: '试用演示分析',
+      accuracyNote: '💡 提示：粘贴完整主页内容比仅提供URL能获得更准确的分析结果',
+      analysisMode: '分析模式',
+      fastMode: '⚡ 快速分析（3秒）',
+      fastModeDesc: '基于AI智能分析，快速获得估算结果',
+      deepMode: '🔍 深度分析（15秒）',
+      deepModeDesc: '浏览器自动化抓取真实数据，更准确但较慢',
+      topPriorities: '🎯 重点改进项：',
+      detailedAnalysis: '详细分析',
+      aiImprovement: 'AI改进建议',
+      improvementSuggestions: 'AI改进建议',
+      specificImprovements: '🎯 具体改进方案',
+      recommendedContent: '📝 推荐内容',
+      keywordSuggestions: '🔑 关键词建议',
+      whyImportant: '💡 为什么重要',
+      generating: '生成中...',
+      copySuggestion: '📋 复制建议',
+      copiedToClipboard: '已复制到剪贴板',
+      copiedDescription: '改进建议已复制，你可以直接应用到LinkedIn'
     }
   }
 }

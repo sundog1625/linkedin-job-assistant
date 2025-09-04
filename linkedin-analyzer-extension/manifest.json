@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "LinkedIn Profile Analyzer",
+  "version": "1.0.0",
+  "description": "实时分析LinkedIn个人主页，提供专业评分和改进建议",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://www.linkedin.com/*",
+    "*://linkedin.com/*",
+    "*://localhost/*",
+    "*://linkedin-analyzer-api.vercel.app/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://www.linkedin.com/in/*",
+        "*://linkedin.com/in/*"
+      ],
+      "js": ["content.js"],
+      "css": ["analyzer.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://www.linkedin.com/jobs/*",
+        "*://linkedin.com/jobs/*"
+      ],
+      "js": ["job-analyzer.js"],
+      "css": ["analyzer.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "LinkedIn Profile Analyzer"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["analyzer.css"],
+      "matches": ["*://www.linkedin.com/*", "*://linkedin.com/*"]
+    }
+  ]
+}
